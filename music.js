@@ -1,14 +1,13 @@
 /* ==========================================================
    TRUST CHAIN — SHARED MUSIC PLAYER
-   - Tự phát nhạc ngay khi vào trang (autoplay)
-   - Nhạc tiếp tục khi chuyển trang (sessionStorage)
-   - Chuyển bài tuần tự, nút loa mở thanh trượt âm lượng
+   - Autoplay bằng kỹ thuật muted → unmute on first interaction
    - Thanh âm lượng: 0 → 200 (mặc định 200)
+   - Chuyển bài tuần tự, sessionStorage giữ nhạc khi chuyển trang
    ========================================================== */
 (function(){
   'use strict';
 
-  /* ====== CẤU HÌNH DANH SÁCH NHẠC ====== */
+  /* ====== DANH SÁCH NHẠC ====== */
   var songs = [
     { src: 'music/君との夏はソーダ味.mp3', title: '君との夏はソーダ味', artist: 'Unknown' },
     { src: 'music/サブカルに恋して.mp3',   title: 'サブカルに恋して',   artist: 'Unknown' },
@@ -17,12 +16,7 @@
 
   if(!songs.length) return;
 
-  /* ====== HẰNG SỐ ÂM LƯỢNG ======
-     Audio API chỉ nhận 0.0 → 1.0.
-     Ta hiển thị theo thang 0 → 200 cho người dùng. */
-  var VOL_MIN = 0;
-  var VOL_MAX = 200;
-  var VOL_DEFAULT = 200;   /* mặc định = max */
+  var VOL_MIN = 0, VOL_MAX = 200, VOL_DEFAULT = 200;
 
   /* ====== STATE ====== */
   var KEY = 'tc_music_v1';
@@ -30,17 +24,14 @@
   try { saved = JSON.parse(sessionStorage.getItem(KEY) || '{}'); } catch(e){ saved = {}; }
 
   var currentIndex = (typeof saved.index === 'number' && saved.index >= 0 && saved.index < songs.length)
-                     ? saved.index
-                     : 0;
+                     ? saved.index : 0;
   var isLoop      = !!saved.loop;
   var isPlaying   = false;
   var pendingTime = (typeof saved.time === 'number' && saved.time > 0) ? saved.time : 0;
   var wantResume  = saved.playing !== false;
 
-  /* savedVolume giờ lưu theo thang 0-200, mặc định 200 */
   var savedVolume200;
   if (typeof saved.volume === 'number'){
-    /* Tương thích state cũ (nếu trước đây lưu 0-1) */
     savedVolume200 = saved.volume <= 1 ? Math.round(saved.volume * VOL_MAX) : saved.volume;
   } else {
     savedVolume200 = VOL_DEFAULT;
@@ -130,7 +121,6 @@
   </div>
   `;
 
-  /* ====== INIT ====== */
   function init(){
     var st = document.createElement('style');
     st.textContent = CSS;
@@ -145,13 +135,12 @@
     init();
   }
 
-  /* ====== PLAYER LOGIC ====== */
   function setup(){
     var audio = new Audio();
-    /* Chuyển 0-200 → 0.0-1.0 cho audio API */
     audio.volume = savedVolume200 / VOL_MAX;
     audio.preload = 'auto';
     audio.loop = isLoop;
+    audio.muted = false;
 
     var player        = document.getElementById('music-player');
     var toggleBtn     = document.getElementById('music-toggle');
@@ -176,27 +165,23 @@
     var volumeFill    = document.getElementById('mp-volume-fill');
     var volumeVal     = document.getElementById('mp-volume-val');
 
-    /* lastVolume lưu theo thang 0-200 */
     var lastVolume200 = savedVolume200 > 0 ? savedVolume200 : VOL_DEFAULT;
 
-    /* Lấy volume hiện tại theo thang 0-200 */
-    function getVolume200(){
-      return Math.round(audio.volume * VOL_MAX);
-    }
+    function getVolume200(){ return Math.round(audio.volume * VOL_MAX); }
 
     function updateVolumeUI(){
-      var v200 = getVolume200();
+      var isSilent = audio.muted || audio.volume === 0;
+      var v200 = isSilent ? 0 : getVolume200();
       volumeFill.style.width = (v200 / VOL_MAX * 100) + '%';
       volumeVal.textContent = v200;
-      iconVolOn.style.display  = v200 > 0 ? 'block' : 'none';
-      iconVolOff.style.display = v200 > 0 ? 'none'  : 'block';
+      iconVolOn.style.display  = isSilent ? 'none' : 'block';
+      iconVolOff.style.display = isSilent ? 'block' : 'none';
     }
 
-    /* v200: 0 - 200 */
     function setVolume200(v200){
       v200 = Math.max(VOL_MIN, Math.min(VOL_MAX, Math.round(v200)));
       audio.volume = v200 / VOL_MAX;
-      if (v200 > 0) lastVolume200 = v200;
+      if (v200 > 0){ audio.muted = false; lastVolume200 = v200; }
       updateVolumeUI();
       saveState();
     }
@@ -208,7 +193,7 @@
           time: audio.currentTime || 0,
           playing: isPlaying,
           loop: isLoop,
-          volume: getVolume200()   /* lưu thang 0-200 */
+          volume: getVolume200()
         }));
       } catch(e){}
     }
@@ -226,17 +211,31 @@
     }
 
     function playSong(){
+      audio.muted = false;
       var p = audio.play();
       if(!p || !p.then) return;
       p.then(function(){
         isPlaying = true;
         updatePlayIcon();
+        updateVolumeUI();
         visualizer.style.opacity = '1';
         saveState();
       }).catch(function(){
-        isPlaying = false;
-        updatePlayIcon();
-        visualizer.style.opacity = '0.3';
+        /* Fallback: phát ở chế độ muted (luôn được phép) */
+        audio.muted = true;
+        var pp = audio.play();
+        if(!pp || !pp.then) return;
+        pp.then(function(){
+          isPlaying = true;
+          updatePlayIcon();
+          updateVolumeUI();
+          visualizer.style.opacity = '1';
+        }).catch(function(){
+          isPlaying = false;
+          updatePlayIcon();
+          updateVolumeUI();
+          visualizer.style.opacity = '0.3';
+        });
       });
     }
 
@@ -266,7 +265,7 @@
       return m + ':' + (s<10?'0':'') + s;
     }
 
-    /* ===== SỰ KIỆN ===== */
+    /* ===== SỰ KIỆN UI ===== */
     toggleBtn.addEventListener('click', function(){ player.classList.toggle('show'); });
     playPauseBtn.addEventListener('click', function(){ if(isPlaying) pauseSong(); else playSong(); });
     nextBtn.addEventListener('click', nextSong);
@@ -281,7 +280,7 @@
 
     volumeToggle.addEventListener('click', function(e){
       if (e.shiftKey){
-        if (getVolume200() > 0){ lastVolume200 = getVolume200(); setVolume200(0); }
+        if (getVolume200() > 0 || audio.muted){ lastVolume200 = getVolume200() || VOL_DEFAULT; setVolume200(0); }
         else setVolume200(lastVolume200 || VOL_DEFAULT);
         return;
       }
@@ -334,7 +333,7 @@
     addEventListener('pagehide', saveState);
     setInterval(saveState, 2000);
 
-    /* Khởi tạo UI */
+    /* ===== KHỞI TẠO UI ===== */
     loadSong(currentIndex);
     loopBtn.classList.toggle('active', isLoop);
     visualizer.style.opacity = '0.3';
@@ -342,43 +341,70 @@
     updateVolumeUI();
 
     /* =============================================================
-       TỰ ĐỘNG PHÁT NHẠC NGAY KHI VÀO TRANG
+       AUTOPLAY: kỹ thuật "muted → unmute on first gesture"
+       - Thử play() có tiếng → nếu bị chặn, play() ở chế độ muted
+       - Muted autoplay LUÔN được phép
+       - User chạm/click/scroll lần đầu → unmute tức thì
        ============================================================= */
+    var unmuteArmed = false;
+
+    function armUnmute(){
+      if (unmuteArmed) return;
+      unmuteArmed = true;
+      var fired = false;
+      function unmute(){
+        if (fired) return;
+        fired = true;
+        audio.muted = false;
+        if (audio.volume === 0 && lastVolume200 > 0) audio.volume = lastVolume200 / VOL_MAX;
+        updateVolumeUI();
+        saveState();
+        ['click','touchstart','keydown','scroll','mousemove','pointerdown','wheel']
+          .forEach(function(ev){
+            document.removeEventListener(ev, unmute);
+            window.removeEventListener(ev, unmute);
+          });
+      }
+      ['click','touchstart','keydown','scroll','mousemove','pointerdown','wheel']
+        .forEach(function(ev){
+          document.addEventListener(ev, unmute, { passive:true });
+          window.addEventListener(ev, unmute, { passive:true });
+        });
+    }
+
     function attemptAutoplay(){
+      /* Bước 1: thử phát bình thường (có tiếng) */
+      audio.muted = false;
       var p = audio.play();
       if(!p || !p.then) return;
       p.then(function(){
         isPlaying = true;
         updatePlayIcon();
+        updateVolumeUI();
         visualizer.style.opacity = '1';
         saveState();
       }).catch(function(){
-        isPlaying = false;
-        updatePlayIcon();
-
-        var fired = false;
-        function kick(){
-          if(fired) return;
-          fired = true;
-          var pp = audio.play();
-          if(!pp || !pp.then) return;
-          pp.then(function(){
-            isPlaying = true;
-            updatePlayIcon();
-            visualizer.style.opacity = '1';
-            saveState();
-          }).catch(function(){});
-          removeListeners();
-        }
-        function removeListeners(){
-          ['click','touchstart','keydown','scroll','mousemove','pointerdown']
-            .forEach(function(ev){ document.removeEventListener(ev, kick); window.removeEventListener(ev, kick); });
-        }
-        ['click','touchstart','keydown','scroll','mousemove','pointerdown']
-          .forEach(function(ev){ document.addEventListener(ev, kick, { passive:true }); window.addEventListener(ev, kick, { passive:true }); });
+        /* Bước 2: bị chặn → phát ở chế độ muted */
+        audio.muted = true;
+        var pp = audio.play();
+        if(!pp || !pp.then) return;
+        pp.then(function(){
+          isPlaying = true;
+          updatePlayIcon();
+          updateVolumeUI();
+          visualizer.style.opacity = '1';
+          saveState();
+          /* Vũ khí bí mật: chờ user chạm/scroll để bật tiếng */
+          armUnmute();
+        }).catch(function(){
+          isPlaying = false;
+          updatePlayIcon();
+          updateVolumeUI();
+        });
       });
     }
 
+    /* Gọi autoplay ở nhiều thời điểm để tăng cơ hội thành công */
     attemptAutoplay();
 
     audio.addEventListener('loadedmetadata', function(){
@@ -386,14 +412,11 @@
         try { audio.currentTime = pendingTime; } catch(e){}
         pendingTime = 0;
       }
-      if(!isPlaying && wantResume){
-        attemptAutoplay();
-      }
-    });
-
-    setTimeout(function(){
       if(!isPlaying && wantResume) attemptAutoplay();
-    }, 1200);
+    }, { once: true });
+
+    setTimeout(function(){ if(!isPlaying && wantResume) attemptAutoplay(); }, 1000);
+    setTimeout(function(){ if(!isPlaying && wantResume) attemptAutoplay(); }, 2500);
 
     var loader = document.getElementById('loader');
     if(loader){
