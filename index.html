@@ -69,7 +69,7 @@ body{position:relative;}
 #hero .btn:hover{box-shadow:0 0 0 3px rgba(255,255,255,.18);}
 html.js .hi{opacity:0; transform:translateY(34px); transition:opacity .9s ease var(--d,0s), transform .9s cubic-bezier(.2,.7,.2,1) var(--d,0s);}
 body.ready .hi{opacity:1; transform:none;}
-@media(prefers-reduced-motion:reduce){html.js .hi{opacity:1; transform:none; transition:none;}}
+@media(prefers-reduced-motion:reduce){html.js .hi{transform:none;}}
 section.block{padding:120px 0; position:relative; z-index:2;}
 .center{text-align:center;}
 .center h2{font-size:clamp(30px,5vw,56px); max-width:760px; margin:0 auto;}
@@ -116,7 +116,7 @@ footer a{margin-left:18px;} footer a:hover{color:var(--ink);}
   .dock span em{display:none;}
 }
 @media(max-width:520px){.steps{grid-template-columns:1fr;} .table .r div,.table .head div{padding:16px;}}
-@media(prefers-reduced-motion:reduce){.rv{opacity:1;transform:none;transition:none;} #loader{transition:none;}}
+@media(prefers-reduced-motion:reduce){.rv{opacity:1;transform:none;transition:none;}}
 a:focus-visible,.btn:focus-visible{outline:2px solid var(--ink); outline-offset:3px;}
 </style>
 </head>
@@ -134,7 +134,7 @@ a:focus-visible,.btn:focus-visible{outline:2px solid var(--ink); outline-offset:
 
 <nav class="pill">
   <a class="logo" href="#top"><i>T</i>Trust Chain</a>
-  <div class="links"><a href="#vi-sao">Vì sao</a><a href="#quy-trinh">Quy trình</a><a href="#dich-vu">Dịch vụ</a><a href="terms.html">Điều khoản</a><a href="privacy.html">Bảo mật</a></div>
+  <div class="links"><a href="#vi-sao">Vì sao</a><a href="#quy-trinh">Quy trình</a><a href="#dich-vu">Dịch vụ</a><a href="https://claude.ai/artifact/S1Dm8opcVZYnNGgpq4VCWK" target="_blank" rel="noopener">Điều khoản</a><a href="https://claude.ai/artifact/XDj9XqAVUEVU7YhUrheJbz" target="_blank" rel="noopener">Bảo mật</a></div>
   <a class="btn" href="https://discord.gg/q6YKpc6FX3" target="_blank" rel="noopener">Vào Discord</a>
 </nav>
 
@@ -188,7 +188,7 @@ a:focus-visible,.btn:focus-visible{outline:2px solid var(--ink); outline-offset:
 
 <footer><div class="wrap">
   <span>© Trust Chain · Owner nityx02</span>
-  <span><a href="terms.html">Điều khoản</a><a href="privacy.html">Bảo mật</a><a href="https://discord.gg/q6YKpc6FX3" target="_blank" rel="noopener">Discord</a></span>
+  <span><a href="https://claude.ai/artifact/S1Dm8opcVZYnNGgpq4VCWK" target="_blank" rel="noopener">Điều khoản</a><a href="https://claude.ai/artifact/XDj9XqAVUEVU7YhUrheJbz" target="_blank" rel="noopener">Bảo mật</a><a href="https://discord.gg/q6YKpc6FX3" target="_blank" rel="noopener">Discord</a></span>
 </div></footer>
 
 <div class="dock"><span>Bắt đầu từ một ticket.<em>Phí 15%</em></span><a class="btn" href="https://discord.gg/q6YKpc6FX3" target="_blank" rel="noopener">Vào Discord →</a></div>
@@ -203,7 +203,7 @@ a:focus-visible,.btn:focus-visible{outline:2px solid var(--ink); outline-offset:
     ld.classList.add('done'); document.documentElement.classList.remove('lock');
     setTimeout(function(){document.body.classList.add('ready');},500);
   }
-  var dur=reduce?0:6000,t0=null;
+  var dur=6000,t0=null;
   function tick(now){
     if(t0===null)t0=now;
     var u=dur?Math.min(1,(now-t0)/dur):1,n=Math.round(u*100);
@@ -276,7 +276,7 @@ a:focus-visible,.btn:focus-visible{outline:2px solid var(--ink); outline-offset:
     (function loop(){
       requestAnimationFrame(loop);
       if(!fit()) return;
-      var t=reduce?0:clock.getElapsedTime();
+      var t=clock.getElapsedTime()*(reduce?.4:1);
       sy=num(sy+(tsy-sy)*.08,0);
       var mobile=w<820, heroT=Math.min(1,sy/h);
       var tx=Math.sin(t*.2)*.9-sy*.003;
