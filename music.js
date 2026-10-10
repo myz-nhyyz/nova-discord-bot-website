@@ -1,18 +1,14 @@
 /* ==========================================================
    TRUST CHAIN — SHARED MUSIC PLAYER
-   Nhạc tiếp tục khi chuyển trang (sessionStorage)
-   - Bỏ random, chuyển bài tuần tự
-   - Nút loa mở thanh trượt âm lượng
+   - Tự phát nhạc ngay khi vào trang (autoplay)
+   - Nhạc tiếp tục khi chuyển trang (sessionStorage)
+   - Chuyển bài tuần tự, nút loa mở thanh trượt âm lượng
+   - Thanh âm lượng: 0 → 200 (mặc định 200)
    ========================================================== */
 (function(){
   'use strict';
 
-  /* ====== CẤU HÌNH DANH SÁCH NHẠC ======
-     Thêm/xóa bài tùy ý. Đường dẫn tính từ file HTML.
-     Hỗ trợ: .mp3, .m4a, .ogg, .wav, .mp4 (chỉ lấy âm thanh)
-     LƯU Ý: 3 file nhạc của bạn hiện không có prefix 'music/',
-     nên chúng phải nằm CÙNG CẤP với index.html.
-     Nếu muốn để trong thư mục music/, thêm 'music/' vào trước. */
+  /* ====== CẤU HÌNH DANH SÁCH NHẠC ====== */
   var songs = [
     { src: 'music/君との夏はソーダ味.mp3', title: '君との夏はソーダ味', artist: 'Unknown' },
     { src: 'music/サブカルに恋して.mp3',   title: 'サブカルに恋して',   artist: 'Unknown' },
@@ -20,6 +16,13 @@
   ];
 
   if(!songs.length) return;
+
+  /* ====== HẰNG SỐ ÂM LƯỢNG ======
+     Audio API chỉ nhận 0.0 → 1.0.
+     Ta hiển thị theo thang 0 → 200 cho người dùng. */
+  var VOL_MIN = 0;
+  var VOL_MAX = 200;
+  var VOL_DEFAULT = 200;   /* mặc định = max */
 
   /* ====== STATE ====== */
   var KEY = 'tc_music_v1';
@@ -32,8 +35,17 @@
   var isLoop      = !!saved.loop;
   var isPlaying   = false;
   var pendingTime = (typeof saved.time === 'number' && saved.time > 0) ? saved.time : 0;
-  var wantResume  = saved.playing === true;
-  var savedVolume = (typeof saved.volume === 'number') ? saved.volume : 0.7;
+  var wantResume  = saved.playing !== false;
+
+  /* savedVolume giờ lưu theo thang 0-200, mặc định 200 */
+  var savedVolume200;
+  if (typeof saved.volume === 'number'){
+    /* Tương thích state cũ (nếu trước đây lưu 0-1) */
+    savedVolume200 = saved.volume <= 1 ? Math.round(saved.volume * VOL_MAX) : saved.volume;
+  } else {
+    savedVolume200 = VOL_DEFAULT;
+  }
+  savedVolume200 = Math.max(VOL_MIN, Math.min(VOL_MAX, savedVolume200));
 
   /* ====== CSS ====== */
   var CSS = `
@@ -58,23 +70,20 @@
   .mp-progress{height:100%;background:#fff;border-radius:2px;width:0%;position:relative;transition:width .1s linear}
   .mp-progress::after{content:'';position:absolute;right:-4px;top:-3px;width:10px;height:10px;background:#fff;border-radius:50%;opacity:0;transition:opacity .2s}
   .mp-progress-bar:hover .mp-progress::after{opacity:1}
-
   .mp-volume-row{max-height:0;overflow:hidden;opacity:0;display:flex;align-items:center;gap:10px;font-size:11px;color:#B0B0B0;margin:0;transition:max-height .35s ease,opacity .25s ease,margin .35s ease;font-variant-numeric:tabular-nums}
   #music-player.volume-open .mp-volume-row{max-height:40px;opacity:1;margin-bottom:16px}
   .mp-volume-row svg{width:14px;height:14px;fill:#B0B0B0;flex-shrink:0}
   .mp-volume-bar{flex:1;height:4px;background:rgba(255,255,255,.15);border-radius:2px;position:relative;cursor:pointer}
-  .mp-volume-fill{height:100%;background:#fff;border-radius:2px;width:70%;position:relative;transition:width .1s linear}
+  .mp-volume-fill{height:100%;background:#fff;border-radius:2px;width:100%;position:relative;transition:width .1s linear}
   .mp-volume-fill::after{content:'';position:absolute;right:-4px;top:-3px;width:10px;height:10px;background:#fff;border-radius:50%;opacity:0;transition:opacity .2s}
   .mp-volume-bar:hover .mp-volume-fill::after{opacity:1}
-  .mp-volume-val{min-width:26px;text-align:right}
-
+  .mp-volume-val{min-width:32px;text-align:right}
   .mp-controls{display:flex;justify-content:space-between;align-items:center;padding:0 8px}
   .mp-btn{background:none;border:none;color:#fff;cursor:pointer;padding:8px;display:flex;align-items:center;justify-content:center;opacity:.7;transition:opacity .2s,transform .2s}
   .mp-btn:hover{opacity:1;transform:scale(1.1)}
   .mp-btn svg{width:20px;height:20px;fill:currentColor}
   .mp-btn.play-pause svg{width:28px;height:28px}
   .mp-btn.active{opacity:1;filter:drop-shadow(0 0 6px rgba(255,255,255,.6))}
-
   @media(max-width:520px){
     #music-player{width:calc(100vw - 48px);right:24px;bottom:calc(90px + env(safe-area-inset-bottom,0px))}
     #music-toggle{bottom:calc(24px + env(safe-area-inset-bottom,0px));right:24px}
@@ -95,19 +104,16 @@
       </div>
       <div class="mp-visualizer" aria-hidden="true"><span></span><span></span><span></span><span></span></div>
     </div>
-
     <div class="mp-progress-wrap">
       <span id="mp-current">0:00</span>
       <div class="mp-progress-bar" id="mp-progress-bar"><div class="mp-progress" id="mp-progress"></div></div>
       <span id="mp-duration">0:00</span>
     </div>
-
     <div class="mp-volume-row" id="mp-volume-row">
       <svg viewBox="0 0 24 24"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/></svg>
       <div class="mp-volume-bar" id="mp-volume-bar"><div class="mp-volume-fill" id="mp-volume-fill"></div></div>
-      <span class="mp-volume-val" id="mp-volume-val">70</span>
+      <span class="mp-volume-val" id="mp-volume-val">200</span>
     </div>
-
     <div class="mp-controls">
       <button class="mp-btn" id="mp-volume-toggle" title="Âm lượng">
         <svg id="mp-icon-vol-on" viewBox="0 0 24 24"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/></svg>
@@ -142,7 +148,8 @@
   /* ====== PLAYER LOGIC ====== */
   function setup(){
     var audio = new Audio();
-    audio.volume = savedVolume;
+    /* Chuyển 0-200 → 0.0-1.0 cho audio API */
+    audio.volume = savedVolume200 / VOL_MAX;
     audio.preload = 'auto';
     audio.loop = isLoop;
 
@@ -162,7 +169,6 @@
     var durationEl    = document.getElementById('mp-duration');
     var visualizer    = player.querySelector('.mp-visualizer');
 
-    /* Volume */
     var volumeToggle  = document.getElementById('mp-volume-toggle');
     var iconVolOn     = document.getElementById('mp-icon-vol-on');
     var iconVolOff    = document.getElementById('mp-icon-vol-off');
@@ -170,20 +176,27 @@
     var volumeFill    = document.getElementById('mp-volume-fill');
     var volumeVal     = document.getElementById('mp-volume-val');
 
-    var lastVolume = savedVolume > 0 ? savedVolume : 0.7;
+    /* lastVolume lưu theo thang 0-200 */
+    var lastVolume200 = savedVolume200 > 0 ? savedVolume200 : VOL_DEFAULT;
 
-    function updateVolumeUI(){
-      var v = audio.volume;
-      volumeFill.style.width = (v * 100) + '%';
-      volumeVal.textContent = Math.round(v * 100);
-      iconVolOn.style.display  = v > 0 ? 'block' : 'none';
-      iconVolOff.style.display = v > 0 ? 'none'  : 'block';
+    /* Lấy volume hiện tại theo thang 0-200 */
+    function getVolume200(){
+      return Math.round(audio.volume * VOL_MAX);
     }
 
-    function setVolume(v){
-      v = Math.max(0, Math.min(1, v));
-      audio.volume = v;
-      if (v > 0) lastVolume = v;
+    function updateVolumeUI(){
+      var v200 = getVolume200();
+      volumeFill.style.width = (v200 / VOL_MAX * 100) + '%';
+      volumeVal.textContent = v200;
+      iconVolOn.style.display  = v200 > 0 ? 'block' : 'none';
+      iconVolOff.style.display = v200 > 0 ? 'none'  : 'block';
+    }
+
+    /* v200: 0 - 200 */
+    function setVolume200(v200){
+      v200 = Math.max(VOL_MIN, Math.min(VOL_MAX, Math.round(v200)));
+      audio.volume = v200 / VOL_MAX;
+      if (v200 > 0) lastVolume200 = v200;
       updateVolumeUI();
       saveState();
     }
@@ -195,14 +208,13 @@
           time: audio.currentTime || 0,
           playing: isPlaying,
           loop: isLoop,
-          volume: audio.volume
+          volume: getVolume200()   /* lưu thang 0-200 */
         }));
       } catch(e){}
     }
 
     function loadSong(i){
       var s = songs[i];
-      /* encodeURI để xử lý tên file tiếng Nhật / khoảng trắng an toàn */
       audio.src = encodeURI(s.src);
       titleEl.textContent = s.title;
       artistEl.textContent = s.artist;
@@ -267,23 +279,22 @@
       saveState();
     });
 
-    /* Nút loa: mở/đóng thanh volume. Shift+Click để mute/unmute nhanh */
     volumeToggle.addEventListener('click', function(e){
       if (e.shiftKey){
-        if (audio.volume > 0){ lastVolume = audio.volume; setVolume(0); }
-        else setVolume(lastVolume || 0.7);
+        if (getVolume200() > 0){ lastVolume200 = getVolume200(); setVolume200(0); }
+        else setVolume200(lastVolume200 || VOL_DEFAULT);
         return;
       }
       player.classList.toggle('volume-open');
       updateVolumeUI();
     });
 
-    /* Click / kéo trên thanh volume */
     var volDragging = false;
     function setVolFromEvent(e){
       var rect = volumeBar.getBoundingClientRect();
       var x = (e.touches ? e.touches[0].clientX : e.clientX) - rect.left;
-      setVolume(x / rect.width);
+      var ratio = Math.max(0, Math.min(1, x / rect.width));
+      setVolume200(ratio * VOL_MAX);
     }
     volumeBar.addEventListener('mousedown', function(e){ volDragging = true; setVolFromEvent(e); e.preventDefault(); });
     document.addEventListener('mousemove', function(e){ if(volDragging) setVolFromEvent(e); });
@@ -291,7 +302,6 @@
     volumeBar.addEventListener('touchstart', function(e){ setVolFromEvent(e); e.preventDefault(); }, {passive:false});
     volumeBar.addEventListener('touchmove',  function(e){ setVolFromEvent(e); e.preventDefault(); }, {passive:false});
 
-    /* Progress bar */
     progressBar.addEventListener('click', function(e){
       if(!audio.duration) return;
       var rect = progressBar.getBoundingClientRect();
@@ -320,7 +330,6 @@
       else nextSong();
     });
 
-    /* Lưu state */
     addEventListener('beforeunload', saveState);
     addEventListener('pagehide', saveState);
     setInterval(saveState, 2000);
@@ -332,46 +341,69 @@
     updatePlayIcon();
     updateVolumeUI();
 
-    /* Nếu trang trước đang phát → thử phát tiếp */
-    if(wantResume){
-      player.classList.add('show');
+    /* =============================================================
+       TỰ ĐỘNG PHÁT NHẠC NGAY KHI VÀO TRANG
+       ============================================================= */
+    function attemptAutoplay(){
+      var p = audio.play();
+      if(!p || !p.then) return;
+      p.then(function(){
+        isPlaying = true;
+        updatePlayIcon();
+        visualizer.style.opacity = '1';
+        saveState();
+      }).catch(function(){
+        isPlaying = false;
+        updatePlayIcon();
 
-      var tryResume = function(){
-        var p = audio.play();
-        if(!p || !p.then) return;
-        p.then(function(){
-          isPlaying = true;
-          updatePlayIcon();
-          visualizer.style.opacity = '1';
-          saveState();
-        }).catch(function(){
-          isPlaying = false;
-          updatePlayIcon();
-          var onInteract = function(){
-            if(isPlaying) return;
-            var pp = audio.play();
-            if(!pp || !pp.then) return;
-            pp.then(function(){
-              isPlaying = true;
-              updatePlayIcon();
-              visualizer.style.opacity = '1';
-              saveState();
-            }).catch(function(){});
-            ['click','touchstart','keydown'].forEach(function(ev){
-              document.removeEventListener(ev, onInteract);
-            });
-          };
-          ['click','touchstart','keydown'].forEach(function(ev){
-            document.addEventListener(ev, onInteract);
-          });
-        });
-      };
+        var fired = false;
+        function kick(){
+          if(fired) return;
+          fired = true;
+          var pp = audio.play();
+          if(!pp || !pp.then) return;
+          pp.then(function(){
+            isPlaying = true;
+            updatePlayIcon();
+            visualizer.style.opacity = '1';
+            saveState();
+          }).catch(function(){});
+          removeListeners();
+        }
+        function removeListeners(){
+          ['click','touchstart','keydown','scroll','mousemove','pointerdown']
+            .forEach(function(ev){ document.removeEventListener(ev, kick); window.removeEventListener(ev, kick); });
+        }
+        ['click','touchstart','keydown','scroll','mousemove','pointerdown']
+          .forEach(function(ev){ document.addEventListener(ev, kick, { passive:true }); window.addEventListener(ev, kick, { passive:true }); });
+      });
+    }
 
-      if(audio.readyState >= 1){
-        tryResume();
-      } else {
-        audio.addEventListener('loadedmetadata', tryResume, { once: true });
+    attemptAutoplay();
+
+    audio.addEventListener('loadedmetadata', function(){
+      if(pendingTime > 0 && pendingTime < audio.duration){
+        try { audio.currentTime = pendingTime; } catch(e){}
+        pendingTime = 0;
       }
+      if(!isPlaying && wantResume){
+        attemptAutoplay();
+      }
+    });
+
+    setTimeout(function(){
+      if(!isPlaying && wantResume) attemptAutoplay();
+    }, 1200);
+
+    var loader = document.getElementById('loader');
+    if(loader){
+      var mo = new MutationObserver(function(){
+        if(loader.classList.contains('done') && !isPlaying && wantResume){
+          attemptAutoplay();
+          mo.disconnect();
+        }
+      });
+      mo.observe(loader, { attributes: true, attributeFilter: ['class'] });
     }
   }
 })();
