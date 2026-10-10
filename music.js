@@ -1,8 +1,8 @@
 /* ==========================================================
    TRUST CHAIN — SHARED MUSIC PLAYER
-   - Autoplay bằng kỹ thuật muted → unmute on first interaction
-   - Thanh âm lượng: 0 → 200 (mặc định 200)
-   - Chuyển bài tuần tự, sessionStorage giữ nhạc khi chuyển trang
+   - Autoplay muted → unmute on first gesture
+   - Thanh âm lượng: 0 → 200 (mặc định 100)
+   - Chuyển bài tuần tự
    ========================================================== */
 (function(){
   'use strict';
@@ -16,10 +16,10 @@
 
   if(!songs.length) return;
 
-  var VOL_MIN = 0, VOL_MAX = 200, VOL_DEFAULT = 200;
+  var VOL_MIN = 0, VOL_MAX = 200, VOL_DEFAULT = 100;
 
   /* ====== STATE ====== */
-  var KEY = 'tc_music_v1';
+  var KEY = 'tc_music_v2';
   var saved = {};
   try { saved = JSON.parse(sessionStorage.getItem(KEY) || '{}'); } catch(e){ saved = {}; }
 
@@ -65,7 +65,7 @@
   #music-player.volume-open .mp-volume-row{max-height:40px;opacity:1;margin-bottom:16px}
   .mp-volume-row svg{width:14px;height:14px;fill:#B0B0B0;flex-shrink:0}
   .mp-volume-bar{flex:1;height:4px;background:rgba(255,255,255,.15);border-radius:2px;position:relative;cursor:pointer}
-  .mp-volume-fill{height:100%;background:#fff;border-radius:2px;width:100%;position:relative;transition:width .1s linear}
+  .mp-volume-fill{height:100%;background:#fff;border-radius:2px;width:50%;position:relative;transition:width .1s linear}
   .mp-volume-fill::after{content:'';position:absolute;right:-4px;top:-3px;width:10px;height:10px;background:#fff;border-radius:50%;opacity:0;transition:opacity .2s}
   .mp-volume-bar:hover .mp-volume-fill::after{opacity:1}
   .mp-volume-val{min-width:32px;text-align:right}
@@ -103,7 +103,7 @@
     <div class="mp-volume-row" id="mp-volume-row">
       <svg viewBox="0 0 24 24"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/></svg>
       <div class="mp-volume-bar" id="mp-volume-bar"><div class="mp-volume-fill" id="mp-volume-fill"></div></div>
-      <span class="mp-volume-val" id="mp-volume-val">200</span>
+      <span class="mp-volume-val" id="mp-volume-val">100</span>
     </div>
     <div class="mp-controls">
       <button class="mp-btn" id="mp-volume-toggle" title="Âm lượng">
@@ -140,7 +140,6 @@
     audio.volume = savedVolume200 / VOL_MAX;
     audio.preload = 'auto';
     audio.loop = isLoop;
-    audio.muted = false;
 
     var player        = document.getElementById('music-player');
     var toggleBtn     = document.getElementById('music-toggle');
@@ -221,21 +220,8 @@
         visualizer.style.opacity = '1';
         saveState();
       }).catch(function(){
-        /* Fallback: phát ở chế độ muted (luôn được phép) */
-        audio.muted = true;
-        var pp = audio.play();
-        if(!pp || !pp.then) return;
-        pp.then(function(){
-          isPlaying = true;
-          updatePlayIcon();
-          updateVolumeUI();
-          visualizer.style.opacity = '1';
-        }).catch(function(){
-          isPlaying = false;
-          updatePlayIcon();
-          updateVolumeUI();
-          visualizer.style.opacity = '0.3';
-        });
+        isPlaying = false;
+        updatePlayIcon();
       });
     }
 
@@ -280,8 +266,12 @@
 
     volumeToggle.addEventListener('click', function(e){
       if (e.shiftKey){
-        if (getVolume200() > 0 || audio.muted){ lastVolume200 = getVolume200() || VOL_DEFAULT; setVolume200(0); }
-        else setVolume200(lastVolume200 || VOL_DEFAULT);
+        if (getVolume200() > 0 || audio.muted){
+          lastVolume200 = getVolume200() || VOL_DEFAULT;
+          setVolume200(0);
+        } else {
+          setVolume200(lastVolume200 || VOL_DEFAULT);
+        }
         return;
       }
       player.classList.toggle('volume-open');
@@ -341,42 +331,42 @@
     updateVolumeUI();
 
     /* =============================================================
-       AUTOPLAY: kỹ thuật "muted → unmute on first gesture"
-       - Thử play() có tiếng → nếu bị chặn, play() ở chế độ muted
-       - Muted autoplay LUÔN được phép
-       - User chạm/click/scroll lần đầu → unmute tức thì
+       AUTOPLAY: gọi nhiều lần nhưng có guard `isPlaying`
        ============================================================= */
-    var unmuteArmed = false;
+    var GESTURE_EVENTS = ['click','touchstart','keydown','pointerdown'];
 
     function armUnmute(){
-      if (unmuteArmed) return;
-      unmuteArmed = true;
-      var fired = false;
       function unmute(){
-        if (fired) return;
-        fired = true;
+        if (!audio.muted) return;
         audio.muted = false;
-        if (audio.volume === 0 && lastVolume200 > 0) audio.volume = lastVolume200 / VOL_MAX;
         updateVolumeUI();
         saveState();
-        ['click','touchstart','keydown','scroll','mousemove','pointerdown','wheel']
-          .forEach(function(ev){
-            document.removeEventListener(ev, unmute);
-            window.removeEventListener(ev, unmute);
-          });
+        GESTURE_EVENTS.forEach(function(ev){ document.removeEventListener(ev, unmute); });
       }
-      ['click','touchstart','keydown','scroll','mousemove','pointerdown','wheel']
-        .forEach(function(ev){
-          document.addEventListener(ev, unmute, { passive:true });
-          window.addEventListener(ev, unmute, { passive:true });
-        });
+      GESTURE_EVENTS.forEach(function(ev){
+        document.addEventListener(ev, unmute, { passive: true });
+      });
     }
 
-    function attemptAutoplay(){
-      /* Bước 1: thử phát bình thường (có tiếng) */
+    function armRetryPlay(){
+      function retry(){
+        GESTURE_EVENTS.forEach(function(ev){ document.removeEventListener(ev, retry); });
+        if (isPlaying) return;
+        attemptPlay();
+      }
+      GESTURE_EVENTS.forEach(function(ev){
+        document.addEventListener(ev, retry, { passive: true });
+      });
+    }
+
+    function attemptPlay(){
+      /* Chặn gọi lại khi đang phát */
+      if (isPlaying) return;
+
+      /* Bước 1: thử phát có tiếng */
       audio.muted = false;
       var p = audio.play();
-      if(!p || !p.then) return;
+      if (!p || !p.then) return;
       p.then(function(){
         isPlaying = true;
         updatePlayIcon();
@@ -384,49 +374,47 @@
         visualizer.style.opacity = '1';
         saveState();
       }).catch(function(){
-        /* Bước 2: bị chặn → phát ở chế độ muted */
+        /* Bước 2: bị chặn → phát muted (luôn được phép) */
         audio.muted = true;
         var pp = audio.play();
-        if(!pp || !pp.then) return;
+        if (!pp || !pp.then) return;
         pp.then(function(){
           isPlaying = true;
           updatePlayIcon();
           updateVolumeUI();
           visualizer.style.opacity = '1';
           saveState();
-          /* Vũ khí bí mật: chờ user chạm/scroll để bật tiếng */
+          /* Chờ user gesture → unmute */
           armUnmute();
         }).catch(function(){
+          /* Cả 2 đều fail → chờ user gesture để thử lại */
           isPlaying = false;
           updatePlayIcon();
-          updateVolumeUI();
+          armRetryPlay();
         });
       });
     }
 
-    /* Gọi autoplay ở nhiều thời điểm để tăng cơ hội thành công */
-    attemptAutoplay();
-
-    audio.addEventListener('loadedmetadata', function(){
-      if(pendingTime > 0 && pendingTime < audio.duration){
-        try { audio.currentTime = pendingTime; } catch(e){}
-        pendingTime = 0;
-      }
-      if(!isPlaying && wantResume) attemptAutoplay();
-    }, { once: true });
-
-    setTimeout(function(){ if(!isPlaying && wantResume) attemptAutoplay(); }, 1000);
-    setTimeout(function(){ if(!isPlaying && wantResume) attemptAutoplay(); }, 2500);
+    attemptPlay();
+    setTimeout(attemptPlay, 600);
+    setTimeout(attemptPlay, 1800);
+    setTimeout(attemptPlay, 3200);
 
     var loader = document.getElementById('loader');
-    if(loader){
+    if (loader){
       var mo = new MutationObserver(function(){
-        if(loader.classList.contains('done') && !isPlaying && wantResume){
-          attemptAutoplay();
-          mo.disconnect();
+        if (loader.classList.contains('done')){
+          setTimeout(attemptPlay, 100);
         }
       });
       mo.observe(loader, { attributes: true, attributeFilter: ['class'] });
     }
+
+    /* Khi user bấm nút Play trên UI mà audio đang paused → phát */
+    document.addEventListener('visibilitychange', function(){
+      if (document.visibilityState === 'visible' && !isPlaying && wantResume){
+        attemptPlay();
+      }
+    });
   }
 })();
