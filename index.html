@@ -150,7 +150,13 @@ a:focus-visible,.btn:focus-visible{outline:2px solid var(--ink); outline-offset:
 
 /* ============ SPA PAGE TRANSITIONS ============ */
 #page-home.page-enter { animation: pageEnter .55s cubic-bezier(.2,.7,.2,1) both; }
+.legal-page.page-enter { animation: legalEnter .6s cubic-bezier(.2,.7,.2,1) both; }
 @keyframes pageEnter { from{opacity:0} to{opacity:1} }
+@keyframes legalEnter {
+  from { opacity: 0; transform: translateY(24px); }
+  to   { opacity: 1; transform: none; }
+}
+
 .no-anim, .no-anim *, .no-anim *::before, .no-anim *::after { transition: none !important; }
 
 /* ============ LEGAL VIEW ============ */
@@ -278,12 +284,12 @@ body:not(.legal-view) #prog {
     <h1>Điều khoản sử dụng</h1>
     <div class="updated">Áp dụng cho mọi giao dịch thực hiện qua server Discord Trust Chain · Owner: nityx02</div>
 
-    <div class="sec"><h2>I. Quy định chung</h2>
+    <div class="sec rv"><h2>I. Quy định chung</h2>
       <p>Mọi giao dịch chỉ được thực hiện trong <strong>ticket</strong> do bot tạo ra. Giao dịch hoặc thoả thuận thực hiện ngoài ticket (nhắn riêng, nền tảng khác) <strong>không được Trust Chain bảo hộ</strong> dưới bất kỳ hình thức nào.</p>
       <p>Trước khi giao tiền hoặc tài khoản, hai bên nên xác minh đúng danh tính staff (Middleman) đang xử lý ticket: kiểm tra role, User ID và username hiển thị trong ticket.</p>
       <p>Phí trung gian là <strong>15%</strong> trên giá trị giao dịch. Hai bên tự thoả thuận ai là người chịu phí, thanh toán trước hoặc trừ trực tiếp vào số tiền giao dịch.</p>
     </div>
-    <div class="sec"><h2>II. Quy trình giao dịch</h2>
+    <div class="sec rv"><h2>II. Quy trình giao dịch</h2>
       <ul>
         <li><strong>Tạo ticket</strong> — chọn loại giao dịch (Thuê / Trade Đồ), chọn đối phương, cả hai xác nhận tham gia qua tin nhắn riêng từ bot.</li>
         <li><strong>Chốt thông tin</strong> — thống nhất sản phẩm, giá tiền, phương thức thanh toán, bên chịu phí.</li>
@@ -291,21 +297,21 @@ body:not(.legal-view) #prog {
         <li><strong>Bàn giao & hoàn tất</strong> — bên mua kiểm tra và xác nhận, staff giải ngân và đóng ticket.</li>
       </ul>
     </div>
-    <div class="sec"><h2>III. Kiểm tra & huỷ giao dịch</h2>
+    <div class="sec rv"><h2>III. Kiểm tra & huỷ giao dịch</h2>
       <p>Thời gian kiểm tra sản phẩm sau bàn giao mặc định <strong>15–30 phút</strong>. Quá thời gian này mà không có phản hồi, staff có quyền giải ngân cho bên bán.</p>
       <p>Nếu một bên yêu cầu huỷ giao dịch <strong>sau khi</strong> staff đã nhận tiền hoặc tài khoản, bên yêu cầu huỷ chịu 100% phí trung gian.</p>
       <p>Tranh chấp cần có <strong>video quay màn hình không cắt ghép</strong> làm bằng chứng. Nếu xác định lỗi hoặc sai mô tả thuộc về bên bán, staff sẽ hoàn tiền cho bên mua.</p>
     </div>
-    <div class="sec"><h2>IV. Miễn trừ trách nhiệm</h2>
+    <div class="sec rv"><h2>IV. Miễn trừ trách nhiệm</h2>
       <p>Trust Chain không hỗ trợ trung gian cho hàng cấm, cờ bạc, hoặc bất kỳ giao dịch nào vi phạm pháp luật hoặc điều khoản Discord.</p>
       <p>Staff chỉ chịu trách nhiệm đảm bảo an toàn <strong>trong thời gian ticket còn mở</strong>. Sau khi ticket đóng, Trust Chain không chịu trách nhiệm bảo hành, mất tài khoản (back/lock) hoặc tranh chấp phát sinh sau đó, trừ khi có thoả thuận riêng được ghi rõ trong ticket trước khi đóng.</p>
     </div>
-    <div class="sec"><h2>V. Tôn trọng & hành vi</h2>
+    <div class="sec rv"><h2>V. Tôn trọng & hành vi</h2>
       <p>Nghiêm cấm spam, gửi hình ảnh phản cảm (NSFW) hoặc đường link lừa đảo trong ticket và server.</p>
       <p>Mọi hành vi quấy rối, đe doạ, lăng mạ staff hoặc đối phương giao dịch sẽ bị xử lý theo quyết định của quản trị viên.</p>
       <p>Giả mạo staff, lừa đảo, hoặc lợi dụng lỗi hệ thống để trục lợi sẽ bị <strong>cấm vĩnh viễn</strong> khỏi server.</p>
     </div>
-    <div class="sec"><h2>VI. Thay đổi điều khoản</h2>
+    <div class="sec rv"><h2>VI. Thay đổi điều khoản</h2>
       <p>Trust Chain có thể cập nhật điều khoản này bất kỳ lúc nào. Bản mới nhất luôn được đăng tại trang này; tiếp tục sử dụng dịch vụ sau khi cập nhật đồng nghĩa với việc chấp nhận điều khoản mới.</p>
     </div>
   </div>
@@ -318,15 +324,15 @@ body:not(.legal-view) #prog {
     <h1>Chính sách bảo mật</h1>
     <div class="updated">Owner: nityx02 · Dữ liệu được xử lý trong server Discord của Trust Chain</div>
 
-    <div class="notice">⚠️ Thông tin tài khoản game chỉ được thu thập khi bạn <strong>chủ động chọn</strong> hình thức "Trade đưa acc". Nếu chọn "Trade vào acc trung gian", bạn không cần cung cấp mật khẩu cho bất kỳ ai.</div>
-    <div class="sec"><h2>Dữ liệu chúng tôi thu thập</h2>
+    <div class="notice rv">⚠️ Thông tin tài khoản game chỉ được thu thập khi bạn <strong>chủ động chọn</strong> hình thức "Trade đưa acc". Nếu chọn "Trade vào acc trung gian", bạn không cần cung cấp mật khẩu cho bất kỳ ai.</div>
+    <div class="sec rv"><h2>Dữ liệu chúng tôi thu thập</h2>
       <ul>
         <li><strong>Thông tin ticket:</strong> User ID Discord, loại giao dịch, mã giao dịch, trạng thái, thời gian hoạt động.</li>
         <li><strong>Thông tin chuyển khoản:</strong> số tiền và nội dung chuyển khoản gắn với mã giao dịch, để đối chiếu thanh toán.</li>
         <li><strong>Thông tin tài khoản game</strong> (chỉ khi dùng hình thức Trade đưa acc): username/gmail, mật khẩu, mã 2FA/backup code — do bạn tự nhập qua form riêng (<code>?info</code>).</li>
       </ul>
     </div>
-    <div class="sec"><h2>Cách thông tin được bảo vệ</h2>
+    <div class="sec rv"><h2>Cách thông tin được bảo vệ</h2>
       <ul>
         <li>Mật khẩu và mã 2FA được <strong>mã hoá</strong> trước khi lưu trữ, không bao giờ lưu dưới dạng chữ thường (plaintext).</li>
         <li>Chỉ staff đang <strong>claim</strong> ticket đó, hoặc quản lý, mới có quyền giải mã và xem thông tin.</li>
@@ -334,14 +340,14 @@ body:not(.legal-view) #prog {
         <li>Sau khi ticket đóng, kênh chat bị xoá; dữ liệu tài khoản liên quan không còn được sử dụng cho mục đích nào khác ngoài giao dịch đã hoàn tất.</li>
       </ul>
     </div>
-    <div class="sec"><h2>Ai có thể truy cập dữ liệu</h2>
+    <div class="sec rv"><h2>Ai có thể truy cập dữ liệu</h2>
       <p>Chỉ staff được giao role Hỗ trợ và quản trị viên server mới truy cập được ticket và thông tin liên quan. Trust Chain không bán, chia sẻ hoặc cung cấp dữ liệu giao dịch cho bên thứ ba ngoài mục đích xử lý giao dịch.</p>
     </div>
-    <div class="sec"><h2>Rủi ro bạn nên biết</h2>
+    <div class="sec rv"><h2>Rủi ro bạn nên biết</h2>
       <p>Việc cung cấp mật khẩu tài khoản game cho bất kỳ bên trung gian nào — kể cả Trust Chain — luôn đi kèm rủi ro, bao gồm khả năng tài khoản bị khoá bởi nhà phát hành game nếu phát hiện đăng nhập từ thiết bị lạ. Trust Chain không kiểm soát được chính sách bảo mật của từng game và không chịu trách nhiệm nếu tài khoản bị khoá do chính sách của bên thứ ba đó.</p>
       <p>Nếu không cần thiết, hãy ưu tiên hình thức <strong>Trade vào acc trung gian</strong> thay vì cung cấp mật khẩu cá nhân.</p>
     </div>
-    <div class="sec"><h2>Liên hệ</h2>
+    <div class="sec rv"><h2>Liên hệ</h2>
       <p>Mọi thắc mắc về bảo mật dữ liệu, vui lòng tạo ticket Hỗ Trợ trong server hoặc liên hệ trực tiếp chủ server <strong>nityx02</strong>.</p>
     </div>
   </div>
@@ -358,8 +364,6 @@ body:not(.legal-view) #prog {
 <script>
 /* ============================================================
    ROUTER (SPA) — chuyển trang không reload, replay animation
-   - Anchor (#vi-sao...) → browser tự scroll, router không đụng
-   - Route (#/terms, #/privacy) → đổi page, scroll tức thì lên đầu
    ============================================================ */
 (function(){
   var pageHome    = document.getElementById('page-home');
@@ -370,7 +374,6 @@ body:not(.legal-view) #prog {
   var termsLink   = document.querySelector('.links a[data-nav="terms"]');
   var privacyLink = document.querySelector('.links a[data-nav="privacy"]');
 
-  /* Tắt smooth-scroll tạm thời để scroll tức thì */
   function instantScrollTop(){
     var prev = document.documentElement.style.scrollBehavior;
     document.documentElement.style.scrollBehavior = 'auto';
@@ -379,11 +382,11 @@ body:not(.legal-view) #prog {
   }
 
   function resetHomeAnimations(){
-    var targets = document.querySelectorAll('.split, .stg, .rv');
+    var targets = document.querySelectorAll('#page-home .split, #page-home .stg, #page-home .rv');
     document.body.classList.add('no-anim');
     document.body.classList.remove('ready');
-    targets.forEach(function(el){ el.classList.remove('in'); });
-    document.querySelectorAll('.stats b[data-to]').forEach(function(b){
+    targets.forEach(function(el){ el.classList.remove('in'); el.style.transitionDelay = ''; });
+    document.querySelectorAll('#page-home .stats b[data-to]').forEach(function(b){
       b.textContent = '0' + (b.dataset.suf || '');
       b.parentNode.classList.remove('pop');
     });
@@ -394,16 +397,37 @@ body:not(.legal-view) #prog {
   function replayHomeAnimations(){
     setTimeout(function(){
       document.body.classList.add('ready');
-      document.querySelectorAll('.split, .stg, .rv').forEach(function(el){
+      document.querySelectorAll('#page-home .split, #page-home .stg, #page-home .rv').forEach(function(el){
         el.classList.add('in');
       });
-      document.querySelectorAll('.stats b[data-to]').forEach(function(b){
+      document.querySelectorAll('#page-home .stats b[data-to]').forEach(function(b){
         if (typeof window.__tcCountUp === 'function') window.__tcCountUp(b);
       });
     }, 40);
   }
 
-  /* Ẩn/hiện các page + toggle body class */
+  function resetLegalAnimations(pageEl){
+    var idx = 0;
+    pageEl.querySelectorAll('.rv').forEach(function(el){
+      el.classList.remove('in');
+      el.style.transitionDelay = (idx * 70) + 'ms';
+      idx++;
+    });
+  }
+
+  function revealVisibleLegal(pageEl){
+    /* Sau khi page hiện, IO có thể chưa kịp fire → tự add .in cho element trong viewport */
+    setTimeout(function(){
+      var vh = window.innerHeight;
+      pageEl.querySelectorAll('.rv').forEach(function(el){
+        var r = el.getBoundingClientRect();
+        if (r.top < vh * 0.9 && r.bottom > 0){
+          el.classList.add('in');
+        }
+      });
+    }, 60);
+  }
+
   function showPage(page){
     pageHome.hidden    = page !== 'home';
     pageTerms.hidden   = page !== 'terms';
@@ -432,12 +456,11 @@ body:not(.legal-view) #prog {
     var isAnchor = hash.length > 1 && hash.charAt(1) !== '/';
     var prevPage = document.body.dataset.page || 'home';
 
-    /* ---------- TRƯỜNG HỢP ANCHOR (#vi-sao, #quy-trinh, #dich-vu) ---------- */
+    /* ---------- ANCHOR (#vi-sao, #quy-trinh, #dich-vu) ---------- */
     if (isAnchor){
       var id = hash.slice(1);
 
       if (prevPage !== 'home'){
-        /* Đang ở legal → chuyển về home + animation */
         resetHomeAnimations();
         showPage('home');
         pageHome.classList.remove('page-enter');
@@ -446,28 +469,31 @@ body:not(.legal-view) #prog {
         replayHomeAnimations();
         setTimeout(function(){ pageHome.classList.remove('page-enter'); }, 700);
 
-        /* Đợi DOM home hiện xong rồi smooth scroll tới section */
         setTimeout(function(){
           var el = document.getElementById(id);
           if (el) el.scrollIntoView({behavior:'smooth', block:'start'});
         }, 100);
       }
-      /* Nếu đang ở home → browser tự smooth scroll, KHÔNG can thiệp gì */
 
       updateLegalNav('home');
       document.body.dataset.page = 'home';
       return;
     }
 
-    /* ---------- TRƯỜNG HỢP ROUTE HASH (#/, #/terms, #/privacy) ---------- */
+    /* ---------- ROUTE HASH (#/, #/terms, #/privacy) ---------- */
     var page = 'home';
     if (hash === '#/terms')        page = 'terms';
     else if (hash === '#/privacy') page = 'privacy';
 
     var isPageChange = (page !== prevPage);
     var isComingHome = (page === 'home' && prevPage !== 'home');
+    var isGoingLegal = (page !== 'home' && page !== prevPage);
 
     if (isComingHome) resetHomeAnimations();
+    if (isGoingLegal){
+      var targetEl = (page === 'terms') ? pageTerms : pagePrivacy;
+      resetLegalAnimations(targetEl);
+    }
 
     showPage(page);
 
@@ -475,9 +501,17 @@ body:not(.legal-view) #prog {
       pageHome.classList.remove('page-enter');
       void pageHome.offsetHeight;
       pageHome.classList.add('page-enter');
+      setTimeout(function(){ pageHome.classList.remove('page-enter'); }, 700);
+    }
+    if (isGoingLegal){
+      var el = (page === 'terms') ? pageTerms : pagePrivacy;
+      el.classList.remove('page-enter');
+      void el.offsetHeight;
+      el.classList.add('page-enter');
+      setTimeout(function(){ el.classList.remove('page-enter'); }, 700);
+      revealVisibleLegal(el);
     }
 
-    /* Scroll lên đầu khi đổi page, hoặc khi bấm "Trang chủ" từ home */
     if (isPageChange){
       instantScrollTop();
     } else if (hash === '#/'){
@@ -486,7 +520,6 @@ body:not(.legal-view) #prog {
 
     if (isComingHome){
       replayHomeAnimations();
-      setTimeout(function(){ pageHome.classList.remove('page-enter'); }, 700);
     }
 
     updateLegalNav(page);
@@ -527,7 +560,6 @@ body:not(.legal-view) #prog {
   requestAnimationFrame(tick);
   var seen=0; setInterval(function(){ if(document.visibilityState==='visible'&&++seen>8) finish(); },1000);
 
-  /* Split text thành từng từ */
   document.querySelectorAll('.split').forEach(function(el){
     var txt=el.textContent.trim().split(/\s+/);
     el.setAttribute('aria-label',el.textContent.trim());
