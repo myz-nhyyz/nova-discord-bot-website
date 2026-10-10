@@ -10,7 +10,6 @@
 <script>
 document.documentElement.classList.add('js','lock');
 if('scrollRestoration' in history) history.scrollRestoration='manual';
-if(location.hash) history.replaceState(null,'',location.pathname+location.search);
 addEventListener('pageshow',function(){scrollTo(0,0);});
 addEventListener('load',function(){scrollTo(0,0);});
 scrollTo(0,0);
@@ -23,7 +22,7 @@ scrollTo(0,0);
 }
 *{box-sizing:border-box;}
 html{scroll-behavior:smooth; scroll-padding-top:env(safe-area-inset-top,0px);}
-body{margin:0; background:var(--bg); color:var(--ink); font-family:'Inter',system-ui,sans-serif; overflow-x:hidden;}
+body{margin:0; background:var(--bg); color:var(--ink); font-family:'Inter',system-ui,sans-serif; overflow-x:hidden; position:relative;}
 h1,h2,h3{font-family:'Inter Tight',sans-serif; margin:0; letter-spacing:-.03em; line-height:1.05;}
 a{color:inherit; text-decoration:none;}
 .wrap{max-width:1040px; margin:0 auto; padding:0 24px; position:relative; z-index:2;}
@@ -53,15 +52,15 @@ a{color:inherit; text-decoration:none;}
 html.lock{overflow:hidden;}
 html:not(.js) #loader{display:none;}
 
-nav.pill{position:fixed; top:calc(14px + env(safe-area-inset-top,0px)); left:50%; transform:translateX(-50%); z-index:60; display:flex; align-items:center; gap:28px; background:rgba(255,255,255,.88); backdrop-filter:blur(12px); border:1px solid var(--line); border-radius:16px; padding:8px 8px 8px 14px; box-shadow:0 8px 30px -12px rgba(0,0,0,.18); white-space:nowrap;}
-.logo{display:flex; align-items:center; gap:9px; font-family:'Inter Tight',sans-serif; font-weight:600; font-size:15px;}
+nav.pill{position:fixed; top:calc(14px + env(safe-area-inset-top,0px)); left:50%; transform:translateX(-50%); z-index:60; display:flex; align-items:center; gap:28px; background:rgba(255,255,255,.88); backdrop-filter:blur(12px); -webkit-backdrop-filter:blur(12px); border:1px solid var(--line); border-radius:16px; padding:8px 8px 8px 14px; box-shadow:0 8px 30px -12px rgba(0,0,0,.18); white-space:nowrap;}
+.logo{display:flex; align-items:center; gap:9px; font-family:'Inter Tight',sans-serif; font-weight:600; font-size:15px; cursor:pointer;}
 .logo i{width:26px; height:26px; border-radius:7px; background:var(--ink); display:grid; place-items:center; color:#fff; font-style:normal; font-size:13px;}
 .links{display:flex; gap:2px; font-size:13px; color:#33332f;}
-.links a{padding:8px 14px; border-radius:10px; transition:background .3s ease, color .3s ease;}
+.links a{padding:8px 14px; border-radius:10px; transition:background .3s ease, color .3s ease; cursor:pointer;}
 .links a:hover{background:#ECEAE4;}
 .links a.on{background:var(--ink); color:#fff;}
 #prog{position:fixed; top:0; left:0; right:0; height:3px; background:#fff; mix-blend-mode:difference; transform:scaleX(0); transform-origin:left; z-index:90;}
-.btn{display:inline-flex; align-items:center; gap:8px; padding:10px 18px; border-radius:11px; background:var(--ink); color:#fff; font-size:13px; font-weight:500; transition:transform .2s, box-shadow .2s;}
+.btn{display:inline-flex; align-items:center; gap:8px; padding:10px 18px; border-radius:11px; background:var(--ink); color:#fff; font-size:13px; font-weight:500; transition:transform .2s, box-shadow .2s; cursor:pointer; border:none; font-family:inherit;}
 .btn:hover{transform:translateY(-2px); box-shadow:0 0 0 3px rgba(10,10,10,.12);}
 .btn.light{background:#fff; color:var(--ink);}
 .btn.line{background:transparent; color:var(--ink); border:1px solid var(--ink);}
@@ -72,8 +71,7 @@ nav.pill{position:fixed; top:calc(14px + env(safe-area-inset-top,0px)); left:50%
 #hero p{max-width:480px; color:#A9ABB3; font-size:17px; line-height:1.55; margin:20px 0 28px;}
 .row{display:flex; gap:12px; flex-wrap:wrap;}
 
-body{position:relative;}
-#hero-bg{position:absolute; top:0; left:0; right:0; height:100svh; background:#16171A; z-index:0;}
+#hero-bg{position:absolute; top:0; left:0; right:0; height:100svh; background:#16171A; z-index:0; transition:opacity .3s;}
 #hero .badge{background:#24262B; border-color:#383B42; color:#D9DBE1;}
 #hero .btn{background:#fff; color:#111;}
 #hero .btn.line{background:transparent; color:#fff; border:1px solid #fff;}
@@ -134,9 +132,9 @@ section.block{padding:120px 0; position:relative; z-index:2;}
 
 footer{position:relative; z-index:2; padding:40px 0 120px; font-size:13px; color:var(--muted);}
 footer .wrap{display:flex; justify-content:space-between; flex-wrap:wrap; gap:12px;}
-footer a{margin-left:18px;} footer a:hover{color:var(--ink);}
+footer a{margin-left:18px; cursor:pointer;} footer a:hover{color:var(--ink);}
 
-.dock{position:fixed; bottom:calc(16px + env(safe-area-inset-bottom,0px)); left:50%; transform:translateX(-50%); z-index:60; display:flex; align-items:center; gap:22px; background:rgba(255,255,255,.92); backdrop-filter:blur(12px); border:1px solid var(--line); border-radius:16px; padding:8px 8px 8px 20px; font-size:13px; box-shadow:0 8px 30px -12px rgba(0,0,0,.2); white-space:nowrap;}
+.dock{position:fixed; bottom:calc(16px + env(safe-area-inset-bottom,0px)); left:50%; transform:translateX(-50%); z-index:60; display:flex; align-items:center; gap:22px; background:rgba(255,255,255,.92); backdrop-filter:blur(12px); -webkit-backdrop-filter:blur(12px); border:1px solid var(--line); border-radius:16px; padding:8px 8px 8px 20px; font-size:13px; box-shadow:0 8px 30px -12px rgba(0,0,0,.2); white-space:nowrap;}
 .dock span em{font-style:normal; color:var(--muted); margin-left:8px;}
 
 .rv{opacity:0; transform:translateY(28px); transition:opacity .8s ease, transform .8s ease;}
@@ -149,6 +147,32 @@ footer a{margin-left:18px;} footer a:hover{color:var(--ink);}
 }
 @media(max-width:520px){.steps{grid-template-columns:1fr;} .table .r div,.table .head div{padding:16px;}}
 a:focus-visible,.btn:focus-visible{outline:2px solid var(--ink); outline-offset:3px;}
+
+/* ============ LEGAL PAGES (Terms / Privacy) ============ */
+[hidden]{display:none !important;}
+body.legal-view #hero-bg,
+body.legal-view #stage,
+body.legal-view .dock,
+body.legal-view #prog {display:none;}
+body.legal-view {background:#EFEDE8;}
+body.legal-view nav.pill{background:rgba(255,255,255,.95);}
+
+.legal-page{padding:130px 0 100px; position:relative; z-index:2;}
+.legal-wrap{max-width:760px; margin:0 auto; padding:0 24px;}
+.legal-page h1{font-size:clamp(34px,6vw,56px); margin:8px 0 10px; line-height:1.05;}
+.legal-page .updated{color:var(--muted); font-size:13.5px; margin-bottom:40px;}
+.legal-page .sec{background:var(--paper); border:1px solid var(--line); border-radius:22px; padding:28px 28px 20px; margin-bottom:14px;}
+.legal-page h2{font-size:20px; margin:0 0 14px;}
+.legal-page p,.legal-page li{color:#33332f; line-height:1.75; font-size:15.5px;}
+.legal-page ul{padding-left:20px;}
+.legal-page li{margin-bottom:8px;}
+.legal-page strong{color:var(--ink);}
+.legal-page code{background:#F4F2ED; border-radius:6px; padding:1px 6px; font-size:13.5px;}
+.legal-page .notice{background:var(--ink); color:#fff; border-radius:16px; padding:18px 22px; margin:0 0 14px; font-size:14.5px; line-height:1.65;}
+.legal-page .notice strong{color:#fff;}
+.legal-page .back{display:inline-flex; align-items:center; gap:6px; background:var(--ink); color:#fff; padding:9px 16px; border-radius:11px; font-size:13px; font-weight:500; margin-bottom:24px; cursor:pointer; border:none; font-family:inherit;}
+.legal-page .back:hover{opacity:.85;}
+@media(max-width:520px){.legal-page .sec{padding:22px 20px 14px;}}
 </style>
 </head>
 <body>
@@ -165,10 +189,20 @@ a:focus-visible,.btn:focus-visible{outline:2px solid var(--ink); outline-offset:
 <div id="stage"></div>
 
 <nav class="pill">
-  <a class="logo" href="#top"><i>T</i>Trust Chain</a>
-  <div class="links"><a href="#top" data-s="hero">Trang chủ</a><a href="#vi-sao" data-s="vi-sao">Vì sao</a><a href="#quy-trinh" data-s="quy-trinh">Quy trình</a><a href="#dich-vu" data-s="dich-vu">Dịch vụ</a><a href="terms.html">Điều khoản</a><a href="privacy.html">Bảo mật</a></div>
+  <a class="logo" href="#/" data-nav="home"><i>T</i>Trust Chain</a>
+  <div class="links">
+    <a href="#/" data-s="hero" data-nav="home">Trang chủ</a>
+    <a href="#vi-sao" data-s="vi-sao" data-nav="home">Vì sao</a>
+    <a href="#quy-trinh" data-s="quy-trinh" data-nav="home">Quy trình</a>
+    <a href="#dich-vu" data-s="dich-vu" data-nav="home">Dịch vụ</a>
+    <a href="#/terms" data-nav="terms">Điều khoản</a>
+    <a href="#/privacy" data-nav="privacy">Bảo mật</a>
+  </div>
   <a class="btn" href="https://discord.gg/q6YKpc6FX3" target="_blank" rel="noopener">Vào Discord</a>
 </nav>
+
+<!-- ============ PAGE: HOME ============ -->
+<div id="page-home">
 
 <section id="hero"><div class="wrap" id="top">
   <div class="badge hi">Middleman cho giao dịch Discord</div>
@@ -218,15 +252,150 @@ a:focus-visible,.btn:focus-visible{outline:2px solid var(--ink); outline-offset:
   <a class="btn light" href="https://discord.gg/q6YKpc6FX3" target="_blank" rel="noopener">Tham gia Trust Chain →</a>
 </div></div></section>
 
+</div><!-- /#page-home -->
+
+<!-- ============ PAGE: TERMS ============ -->
+<div id="page-terms" class="legal-page" hidden>
+  <div class="legal-wrap">
+    <button class="back" data-go-home>← Về trang chủ</button>
+    <h1>Điều khoản sử dụng</h1>
+    <div class="updated">Áp dụng cho mọi giao dịch thực hiện qua server Discord Trust Chain · Owner: nityx02</div>
+
+    <div class="sec"><h2>I. Quy định chung</h2>
+      <p>Mọi giao dịch chỉ được thực hiện trong <strong>ticket</strong> do bot tạo ra. Giao dịch hoặc thoả thuận thực hiện ngoài ticket (nhắn riêng, nền tảng khác) <strong>không được Trust Chain bảo hộ</strong> dưới bất kỳ hình thức nào.</p>
+      <p>Trước khi giao tiền hoặc tài khoản, hai bên nên xác minh đúng danh tính staff (Middleman) đang xử lý ticket: kiểm tra role, User ID và username hiển thị trong ticket.</p>
+      <p>Phí trung gian là <strong>15%</strong> trên giá trị giao dịch. Hai bên tự thoả thuận ai là người chịu phí, thanh toán trước hoặc trừ trực tiếp vào số tiền giao dịch.</p>
+    </div>
+    <div class="sec"><h2>II. Quy trình giao dịch</h2>
+      <ul>
+        <li><strong>Tạo ticket</strong> — chọn loại giao dịch (Thuê / Trade Đồ), chọn đối phương, cả hai xác nhận tham gia qua tin nhắn riêng từ bot.</li>
+        <li><strong>Chốt thông tin</strong> — thống nhất sản phẩm, giá tiền, phương thức thanh toán, bên chịu phí.</li>
+        <li><strong>Giữ tiền / hàng</strong> — bên mua chuyển khoản theo hướng dẫn của staff; staff xác nhận đã nhận trước khi yêu cầu bên bán giao hàng.</li>
+        <li><strong>Bàn giao & hoàn tất</strong> — bên mua kiểm tra và xác nhận, staff giải ngân và đóng ticket.</li>
+      </ul>
+    </div>
+    <div class="sec"><h2>III. Kiểm tra & huỷ giao dịch</h2>
+      <p>Thời gian kiểm tra sản phẩm sau bàn giao mặc định <strong>15–30 phút</strong>. Quá thời gian này mà không có phản hồi, staff có quyền giải ngân cho bên bán.</p>
+      <p>Nếu một bên yêu cầu huỷ giao dịch <strong>sau khi</strong> staff đã nhận tiền hoặc tài khoản, bên yêu cầu huỷ chịu 100% phí trung gian.</p>
+      <p>Tranh chấp cần có <strong>video quay màn hình không cắt ghép</strong> làm bằng chứng. Nếu xác định lỗi hoặc sai mô tả thuộc về bên bán, staff sẽ hoàn tiền cho bên mua.</p>
+    </div>
+    <div class="sec"><h2>IV. Miễn trừ trách nhiệm</h2>
+      <p>Trust Chain không hỗ trợ trung gian cho hàng cấm, cờ bạc, hoặc bất kỳ giao dịch nào vi phạm pháp luật hoặc điều khoản Discord.</p>
+      <p>Staff chỉ chịu trách nhiệm đảm bảo an toàn <strong>trong thời gian ticket còn mở</strong>. Sau khi ticket đóng, Trust Chain không chịu trách nhiệm bảo hành, mất tài khoản (back/lock) hoặc tranh chấp phát sinh sau đó, trừ khi có thoả thuận riêng được ghi rõ trong ticket trước khi đóng.</p>
+    </div>
+    <div class="sec"><h2>V. Tôn trọng & hành vi</h2>
+      <p>Nghiêm cấm spam, gửi hình ảnh phản cảm (NSFW) hoặc đường link lừa đảo trong ticket và server.</p>
+      <p>Mọi hành vi quấy rối, đe doạ, lăng mạ staff hoặc đối phương giao dịch sẽ bị xử lý theo quyết định của quản trị viên.</p>
+      <p>Giả mạo staff, lừa đảo, hoặc lợi dụng lỗi hệ thống để trục lợi sẽ bị <strong>cấm vĩnh viễn</strong> khỏi server.</p>
+    </div>
+    <div class="sec"><h2>VI. Thay đổi điều khoản</h2>
+      <p>Trust Chain có thể cập nhật điều khoản này bất kỳ lúc nào. Bản mới nhất luôn được đăng tại trang này; tiếp tục sử dụng dịch vụ sau khi cập nhật đồng nghĩa với việc chấp nhận điều khoản mới.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ============ PAGE: PRIVACY ============ -->
+<div id="page-privacy" class="legal-page" hidden>
+  <div class="legal-wrap">
+    <button class="back" data-go-home>← Về trang chủ</button>
+    <h1>Chính sách bảo mật</h1>
+    <div class="updated">Owner: nityx02 · Dữ liệu được xử lý trong server Discord của Trust Chain</div>
+
+    <div class="notice">⚠️ Thông tin tài khoản game chỉ được thu thập khi bạn <strong>chủ động chọn</strong> hình thức "Trade đưa acc". Nếu chọn "Trade vào acc trung gian", bạn không cần cung cấp mật khẩu cho bất kỳ ai.</div>
+    <div class="sec"><h2>Dữ liệu chúng tôi thu thập</h2>
+      <ul>
+        <li><strong>Thông tin ticket:</strong> User ID Discord, loại giao dịch, mã giao dịch, trạng thái, thời gian hoạt động.</li>
+        <li><strong>Thông tin chuyển khoản:</strong> số tiền và nội dung chuyển khoản gắn với mã giao dịch, để đối chiếu thanh toán.</li>
+        <li><strong>Thông tin tài khoản game</strong> (chỉ khi dùng hình thức Trade đưa acc): username/gmail, mật khẩu, mã 2FA/backup code — do bạn tự nhập qua form riêng (<code>?info</code>).</li>
+      </ul>
+    </div>
+    <div class="sec"><h2>Cách thông tin được bảo vệ</h2>
+      <ul>
+        <li>Mật khẩu và mã 2FA được <strong>mã hoá</strong> trước khi lưu trữ, không bao giờ lưu dưới dạng chữ thường (plaintext).</li>
+        <li>Chỉ staff đang <strong>claim</strong> ticket đó, hoặc quản lý, mới có quyền giải mã và xem thông tin.</li>
+        <li>Thông tin không được đăng công khai ngoài ticket riêng của giao dịch liên quan.</li>
+        <li>Sau khi ticket đóng, kênh chat bị xoá; dữ liệu tài khoản liên quan không còn được sử dụng cho mục đích nào khác ngoài giao dịch đã hoàn tất.</li>
+      </ul>
+    </div>
+    <div class="sec"><h2>Ai có thể truy cập dữ liệu</h2>
+      <p>Chỉ staff được giao role Hỗ trợ và quản trị viên server mới truy cập được ticket và thông tin liên quan. Trust Chain không bán, chia sẻ hoặc cung cấp dữ liệu giao dịch cho bên thứ ba ngoài mục đích xử lý giao dịch.</p>
+    </div>
+    <div class="sec"><h2>Rủi ro bạn nên biết</h2>
+      <p>Việc cung cấp mật khẩu tài khoản game cho bất kỳ bên trung gian nào — kể cả Trust Chain — luôn đi kèm rủi ro, bao gồm khả năng tài khoản bị khoá bởi nhà phát hành game nếu phát hiện đăng nhập từ thiết bị lạ. Trust Chain không kiểm soát được chính sách bảo mật của từng game và không chịu trách nhiệm nếu tài khoản bị khoá do chính sách của bên thứ ba đó.</p>
+      <p>Nếu không cần thiết, hãy ưu tiên hình thức <strong>Trade vào acc trung gian</strong> thay vì cung cấp mật khẩu cá nhân.</p>
+    </div>
+    <div class="sec"><h2>Liên hệ</h2>
+      <p>Mọi thắc mắc về bảo mật dữ liệu, vui lòng tạo ticket Hỗ Trợ trong server hoặc liên hệ trực tiếp chủ server <strong>nityx02</strong>.</p>
+    </div>
+  </div>
+</div>
+
 <footer><div class="wrap">
   <span>© Trust Chain · Owner nityx02</span>
-  <span><a href="terms.html">Điều khoản</a><a href="privacy.html">Bảo mật</a><a href="https://discord.gg/q6YKpc6FX3" target="_blank" rel="noopener">Discord</a></span>
+  <span><a href="#/terms">Điều khoản</a><a href="#/privacy">Bảo mật</a><a href="https://discord.gg/q6YKpc6FX3" target="_blank" rel="noopener">Discord</a></span>
 </div></footer>
 
 <div class="dock"><span>Bắt đầu từ một ticket.<em>Phí 15%</em></span><a class="btn" href="https://discord.gg/q6YKpc6FX3" target="_blank" rel="noopener">Vào Discord →</a></div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script>
+/* ============================================================
+   ROUTER (SPA) — chuyển trang không reload
+   ============================================================ */
+(function(){
+  var pageHome    = document.getElementById('page-home');
+  var pageTerms   = document.getElementById('page-terms');
+  var pagePrivacy = document.getElementById('page-privacy');
+
+  function route(){
+    var hash = location.hash || '#/';
+    var page = 'home';
+    if (hash === '#/terms')        page = 'terms';
+    else if (hash === '#/privacy') page = 'privacy';
+
+    pageHome.hidden    = page !== 'home';
+    pageTerms.hidden   = page !== 'terms';
+    pagePrivacy.hidden = page !== 'privacy';
+    document.body.classList.toggle('legal-view', page !== 'home');
+
+    /* Nếu là anchor #vi-sao, #quy-trinh, #dich-vu → cuộn tới section */
+    if (page === 'home' && hash.length > 1 && hash.charAt(1) !== '/'){
+      var id = hash.slice(1);
+      setTimeout(function(){
+        var el = document.getElementById(id);
+        if (el) el.scrollIntoView({behavior:'smooth', block:'start'});
+        else scrollTo(0,0);
+      }, 60);
+    } else {
+      scrollTo(0,0);
+    }
+
+    /* Highlight nav */
+    var navs = document.querySelectorAll('.links a[data-nav]');
+    navs.forEach(function(a){
+      var nav = a.dataset.nav;
+      a.classList.toggle('on', nav === page);
+    });
+  }
+
+  addEventListener('hashchange', route);
+  route();
+
+  /* Nút "Về trang chủ" trong legal pages */
+  document.querySelectorAll('[data-go-home]').forEach(function(b){
+    b.addEventListener('click', function(){ location.hash = '#/'; });
+  });
+
+  /* Click logo → trang chủ */
+  document.querySelector('.logo').addEventListener('click', function(e){
+    e.preventDefault();
+    location.hash = '#/';
+  });
+})();
+
+/* ============================================================
+   3D SCENE + LOADER + HIỆU ỨNG (chỉ chạy trên home)
+   ============================================================ */
 (function(){
   var reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
   var ld=document.getElementById('loader'),cnt=document.getElementById('count'),bar=document.getElementById('bar');
@@ -270,6 +439,7 @@ a:focus-visible,.btn:focus-visible{outline:2px solid var(--ink); outline-offset:
 
   var navs=document.querySelectorAll('.links a[data-s]'),prog=document.getElementById('prog'),hw=document.getElementById('top');
   function onScroll(){
+    if(document.body.classList.contains('legal-view')) return;
     var y=innerHeight*.45,cur='hero';
     ['hero','vi-sao','quy-trinh','dich-vu'].forEach(function(id){var e=document.getElementById(id);if(e&&e.getBoundingClientRect().top<=y)cur=id;});
     navs.forEach(function(a){a.classList.toggle('on',a.dataset.s===cur);});
@@ -342,10 +512,11 @@ a:focus-visible,.btn:focus-visible{outline:2px solid var(--ink); outline-offset:
     addEventListener('mousemove',function(e){mx=e.clientX/Math.max(1,innerWidth)-.5; my=e.clientY/Math.max(1,innerHeight)-.5;});
     addEventListener('scroll',function(){tsy=scrollY;},{passive:true});
 
-    var clock=new THREE.Clock(), span=(N-1)*pitch+L+2*R+2*T;
+    var clock=new THREE.Clock();
     (function loop(){
       requestAnimationFrame(loop);
       if(!fit()) return;
+      if(document.body.classList.contains('legal-view')) return;
       var t=clock.getElapsedTime()*(reduce?.4:1);
       sy=num(sy+(tsy-sy)*.08,0);
       var mobile=w<820, heroT=Math.min(1,sy/h);
