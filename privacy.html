@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Bảo mật — Trust Chain</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@500;600;700&family=Inter:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#EFEDE8;--paper:#fff;--ink:#0A0A0A;--muted:#6B6B66;--line:#DAD7D0;color-scheme:light;box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);}
+*{box-sizing:border-box;}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:'Inter',system-ui,sans-serif;}
+.wrap{max-width:760px;margin:0 auto;padding:0 24px 100px;}
+h1,h2{font-family:'Inter Tight',sans-serif;letter-spacing:-.03em;}
+header{padding:20px 0;margin-bottom:40px;}
+header .wrap{padding-bottom:0;display:flex;justify-content:space-between;align-items:center;}
+.brand{font-family:'Inter Tight',sans-serif;font-weight:600;font-size:17px;}
+.brand span{color:var(--ink);}
+a{color:var(--ink);}
+a.back{background:var(--ink);color:#fff;text-decoration:none;font-size:13px;font-weight:500;padding:9px 16px;border-radius:11px;}
+h1{font-size:clamp(34px,6vw,56px);margin:8px 0 10px;line-height:1.05;}
+.updated{color:var(--muted);font-size:13.5px;margin-bottom:40px;}
+h2{font-size:20px;margin:0 0 14px;}
+.sec{background:var(--paper);border:1px solid var(--line);border-radius:22px;padding:28px 28px 20px;margin-bottom:14px;}
+p,li{color:#33332f;line-height:1.75;font-size:15.5px;}
+ul{padding-left:20px;}
+li{margin-bottom:8px;}
+strong{color:var(--ink);}
+code{background:#F4F2ED;border-radius:6px;padding:1px 6px;font-size:13.5px;}
+.notice{background:var(--ink);color:#fff;border-radius:16px;padding:18px 22px;margin:0 0 14px;font-size:14.5px;line-height:1.65;}
+.notice strong{color:#fff;}
+@media(max-width:520px){.sec{padding:22px 20px 14px;}}
+</style>
+</head>
+<body>
+<header><div class="wrap">
+  <div class="brand">Trust Chain</div>
+  <a class="back" href="index.html">← Trang chủ</a>
+</div></header>
+<div class="wrap">
+  <h1>Chính sách bảo mật</h1>
+  <div class="updated">Owner: nityx02 · Dữ liệu được xử lý trong server Discord của Trust Chain</div>
+
+  <div class="notice">⚠️ Thông tin tài khoản game chỉ được thu thập khi bạn <strong>chủ động chọn</strong> hình thức "Trade đưa acc". Nếu chọn "Trade vào acc trung gian", bạn không cần cung cấp mật khẩu cho bất kỳ ai.</div><div class="sec"><h2>Dữ liệu chúng tôi thu thập</h2>
+  <ul>
+    <li><strong>Thông tin ticket:</strong> User ID Discord, loại giao dịch, mã giao dịch, trạng thái, thời gian hoạt động.</li>
+    <li><strong>Thông tin chuyển khoản:</strong> số tiền và nội dung chuyển khoản gắn với mã giao dịch, để đối chiếu thanh toán.</li>
+    <li><strong>Thông tin tài khoản game</strong> (chỉ khi dùng hình thức Trade đưa acc): username/gmail, mật khẩu, mã 2FA/backup code — do bạn tự nhập qua form riêng (<code>?info</code>).</li>
+  </ul>
+
+  
+
+  </div><div class="sec"><h2>Cách thông tin được bảo vệ</h2>
+  <ul>
+    <li>Mật khẩu và mã 2FA được <strong>mã hoá</strong> trước khi lưu trữ, không bao giờ lưu dưới dạng chữ thường (plaintext).</li>
+    <li>Chỉ staff đang <strong>claim</strong> ticket đó, hoặc quản lý, mới có quyền giải mã và xem thông tin.</li>
+    <li>Thông tin không được đăng công khai ngoài ticket riêng của giao dịch liên quan.</li>
+    <li>Sau khi ticket đóng, kênh chat bị xoá; dữ liệu tài khoản liên quan không còn được sử dụng cho mục đích nào khác ngoài giao dịch đã hoàn tất.</li>
+  </ul>
+
+  </div><div class="sec"><h2>Ai có thể truy cập dữ liệu</h2>
+  <p>Chỉ staff được giao role Hỗ trợ và quản trị viên server mới truy cập được ticket và thông tin liên quan. Trust Chain không bán, chia sẻ hoặc cung cấp dữ liệu giao dịch cho bên thứ ba ngoài mục đích xử lý giao dịch.</p>
+
+  </div><div class="sec"><h2>Rủi ro bạn nên biết</h2>
+  <p>Việc cung cấp mật khẩu tài khoản game cho bất kỳ bên trung gian nào — kể cả Trust Chain — luôn đi kèm rủi ro, bao gồm khả năng tài khoản bị khoá bởi nhà phát hành game nếu phát hiện đăng nhập từ thiết bị lạ. Trust Chain không kiểm soát được chính sách bảo mật của từng game và không chịu trách nhiệm nếu tài khoản bị khoá do chính sách của bên thứ ba đó.</p>
+  <p>Nếu không cần thiết, hãy ưu tiên hình thức <strong>Trade vào acc trung gian</strong> thay vì cung cấp mật khẩu cá nhân.</p>
+
+  </div><div class="sec"><h2>Liên hệ</h2>
+  <p>Mọi thắc mắc về bảo mật dữ liệu, vui lòng tạo ticket Hỗ Trợ trong server hoặc liên hệ trực tiếp chủ server <strong>nityx02</strong>.</p>
+
+</div>
+</div>
+</body>
+</html>

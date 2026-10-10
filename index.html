@@ -1,332 +1,292 @@
 <!DOCTYPE html>
-<html lang="vi" data-lang="vi">
+<html lang="vi">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <title>Nova — AI Discord Bot</title>
-    <meta name="description" content="Nova is an advanced Discord bot for AI chat, AI image generation, War and Backup coordination, events, Ban Zone protection, moderation, and server management.">
-    <meta property="og:type" content="website">
-    <meta property="og:title" content="Nova — AI Discord Bot">
-    <meta property="og:description" content="Your intelligent Discord assistant — AI chat, AI images, War/Backup coordination, Events, Ban Zone protection, moderation and server management.">
-    <meta property="og:image" content="assets/avatar.png">
-    <meta name="theme-color" content="#05070d">
-    <link rel="icon" type="image/png" href="assets/favicon.png">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Trust Chain — Trung gian giao dịch Discord</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@500;600;700&family=Inter:wght@400;500&family=Instrument+Serif:ital@1&family=Playfair+Display:wght@800&family=JetBrains+Mono:wght@400&display=swap" rel="stylesheet">
+<script>document.documentElement.classList.add('js','lock')</script>
+<style>
+:root{
+  --bg:#EFEDE8; --paper:#FFFFFF; --ink:#0A0A0A; --muted:#6B6B66; --line:#DAD7D0;
+  color-scheme:light; box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+}
+*{box-sizing:border-box;}
+html{scroll-behavior:smooth; scroll-padding-top:env(safe-area-inset-top,0px);}
+body{margin:0; background:var(--bg); color:var(--ink); font-family:'Inter',system-ui,sans-serif; overflow-x:hidden;}
+h1,h2,h3{font-family:'Inter Tight',sans-serif; margin:0; letter-spacing:-.03em; line-height:1.05;}
+a{color:inherit; text-decoration:none;}
+.wrap{max-width:1040px; margin:0 auto; padding:0 24px; position:relative; z-index:2;}
 
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+#stage{position:absolute; top:0; left:0; width:100%; height:100svh; z-index:1; overflow:hidden; border-radius:0 0 36px 36px; pointer-events:none;}
+#stage canvas{width:100%!important; height:100%!important; display:block;}
 
-    <link rel="stylesheet" href="style.css">
+#loader{position:fixed; inset:0; z-index:200; background:#07080A; color:#EDE8DC; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; transition:opacity .9s ease, visibility .9s;}
+#loader.done{opacity:0; visibility:hidden;}
+#loader .dots{display:flex; gap:22px; margin-bottom:46px;}
+#loader .dots i{width:9px; height:9px; border-radius:50%; background:#fff; box-shadow:0 0 14px 3px rgba(255,255,255,.55); animation:pulse 1.3s ease-in-out infinite;}
+#loader .dots i:nth-child(2){animation-delay:.22s;} #loader .dots i:nth-child(3){animation-delay:.44s;}
+@keyframes pulse{0%,100%{opacity:.25; transform:scale(.7);} 50%{opacity:1; transform:scale(1.25);}}
+#loader .wm{display:flex; align-items:flex-end; gap:14px; padding:0 20px;}
+#loader .wm b{font-family:'Playfair Display',Georgia,serif; font-weight:800; font-size:clamp(40px,7vw,64px); line-height:.9; letter-spacing:-.01em;}
+#loader .wm small{font-family:'JetBrains Mono',ui-monospace,monospace; font-size:12px; letter-spacing:.3em; color:#9A968C; padding-bottom:6px;}
+#loader .cap{font-family:'JetBrains Mono',ui-monospace,monospace; font-size:12px; letter-spacing:.28em; color:#B9B5AA; margin-top:26px; padding:0 20px;}
+#loader .track{width:min(300px,70vw); height:2px; background:rgba(255,255,255,.12); margin-top:30px; overflow:hidden;}
+#loader .track u{display:block; height:100%; width:0; background:#EDE8DC;}
+#loader .pc{font-family:'JetBrains Mono',ui-monospace,monospace; font-size:11px; letter-spacing:.2em; color:#6E6B63; margin-top:12px;}
+html.lock{overflow:hidden;}
+
+nav.pill{position:fixed; top:calc(14px + env(safe-area-inset-top,0px)); left:50%; transform:translateX(-50%); z-index:60; display:flex; align-items:center; gap:28px; background:rgba(255,255,255,.88); backdrop-filter:blur(12px); border:1px solid var(--line); border-radius:16px; padding:8px 8px 8px 14px; box-shadow:0 8px 30px -12px rgba(0,0,0,.18); white-space:nowrap;}
+.logo{display:flex; align-items:center; gap:9px; font-family:'Inter Tight',sans-serif; font-weight:600; font-size:15px;}
+.logo i{width:26px; height:26px; border-radius:7px; background:var(--ink); display:grid; place-items:center; color:#fff; font-style:normal; font-size:13px;}
+.links{display:flex; gap:22px; font-size:13px; color:#33332f;}
+.links a:hover{color:var(--muted);}
+.btn{display:inline-flex; align-items:center; gap:8px; padding:10px 18px; border-radius:11px; background:var(--ink); color:#fff; font-size:13px; font-weight:500; transition:transform .2s, box-shadow .2s;}
+.btn:hover{transform:translateY(-2px); box-shadow:0 0 0 3px rgba(10,10,10,.12);}
+.btn.light{background:#fff; color:var(--ink);}
+.btn.line{background:transparent; color:var(--ink); border:1px solid var(--ink);}
+
+#hero{min-height:100svh; display:flex; align-items:center; position:relative; z-index:2;}
+.badge{display:inline-block; background:#fff; border:1px solid var(--line); border-radius:999px; padding:6px 14px; font-size:12px; margin-bottom:22px;}
+#hero h1{font-size:clamp(44px,8vw,96px); max-width:760px; font-weight:700; color:#fff;}
+#hero p{max-width:440px; color:#A9ABB3; font-size:17px; line-height:1.55; margin:24px 0 32px;}
+.row{display:flex; gap:12px; flex-wrap:wrap;}
+
+body{position:relative;}
+#hero-bg{position:absolute; top:0; left:0; right:0; height:100svh; background:#16171A; border-radius:0 0 36px 36px; z-index:0;}
+#hero .badge{background:#24262B; border-color:#383B42; color:#D9DBE1;}
+#hero .btn{background:#fff; color:#111;}
+#hero .btn.line{background:transparent; color:#fff; border:1px solid #fff;}
+#hero .btn:hover{box-shadow:0 0 0 3px rgba(255,255,255,.18);}
+html.js .hi{opacity:0; transform:translateY(34px); transition:opacity .9s ease var(--d,0s), transform .9s cubic-bezier(.2,.7,.2,1) var(--d,0s);}
+body.ready .hi{opacity:1; transform:none;}
+@media(prefers-reduced-motion:reduce){html.js .hi{opacity:1; transform:none; transition:none;}}
+section.block{padding:120px 0; position:relative; z-index:2;}
+.center{text-align:center;}
+.center h2{font-size:clamp(30px,5vw,56px); max-width:760px; margin:0 auto;}
+.center p{color:var(--muted); max-width:460px; margin:18px auto 0; line-height:1.6;}
+.quote{font-family:'Instrument Serif',serif; font-style:italic; font-weight:400; font-size:clamp(34px,6vw,68px); line-height:1.08; letter-spacing:-.02em; max-width:900px; margin:0 auto; text-align:center;}
+
+.table{margin:56px auto 0; max-width:900px; background:var(--paper); border:1px solid var(--line); border-radius:22px; overflow:hidden;}
+.table .head,.table .r{display:grid; grid-template-columns:1fr 1fr;}
+.table .head div{padding:16px 24px; font-size:12px; color:var(--muted); border-bottom:1px solid var(--line); background:#F4F2ED;}
+.table .head div+div,.table .r div+div{border-left:1px solid var(--line);}
+.table .r div{padding:22px 24px; font-size:15px; line-height:1.5; border-bottom:1px solid var(--line);}
+.table .r:last-child div{border-bottom:0;}
+.table .r div:last-child{font-weight:500;}
+.table .r div:first-child{color:var(--muted);}
+
+.steps{display:grid; grid-template-columns:repeat(4,1fr); gap:14px; max-width:1000px; margin:56px auto 0;}
+.card{background:var(--paper); border:1px solid var(--line); border-radius:22px; padding:26px 22px; min-height:220px; display:flex; flex-direction:column; justify-content:space-between;}
+.card b{font-family:'Inter Tight',sans-serif; font-size:13px; color:var(--muted); font-weight:500;}
+.card h3{font-size:22px; margin-bottom:8px;}
+.card p{font-size:14px; line-height:1.55; color:var(--muted); margin:0;}
+
+.stats{display:flex; justify-content:center; gap:clamp(28px,7vw,90px); flex-wrap:wrap; margin-top:64px;}
+.stats b{display:block; font-family:'Inter Tight',sans-serif; font-size:clamp(40px,6vw,72px); letter-spacing:-.04em;}
+.stats span{font-size:13px; color:var(--muted);}
+
+.dark{background:var(--ink); color:#fff; border-radius:28px; padding:80px 28px; text-align:center; max-width:960px; margin:0 auto;}
+.dark h2{font-size:clamp(30px,5vw,54px); max-width:640px; margin:0 auto;}
+.dark p{color:#A8A8A2; margin:18px auto 30px; max-width:420px; line-height:1.6;}
+.dark .btn{box-shadow:0 0 0 1px #fff, 0 0 40px rgba(255,255,255,.25); padding:14px 26px; font-size:14px;}
+
+footer{position:relative; z-index:2; padding:40px 0 120px; font-size:13px; color:var(--muted);}
+footer .wrap{display:flex; justify-content:space-between; flex-wrap:wrap; gap:12px;}
+footer a{margin-left:18px;} footer a:hover{color:var(--ink);}
+
+.dock{position:fixed; bottom:calc(16px + env(safe-area-inset-bottom,0px)); left:50%; transform:translateX(-50%); z-index:60; display:flex; align-items:center; gap:22px; background:rgba(255,255,255,.92); backdrop-filter:blur(12px); border:1px solid var(--line); border-radius:16px; padding:8px 8px 8px 20px; font-size:13px; box-shadow:0 8px 30px -12px rgba(0,0,0,.2); white-space:nowrap;}
+.dock span em{font-style:normal; color:var(--muted); margin-left:8px;}
+
+.rv{opacity:0; transform:translateY(28px); transition:opacity .8s ease, transform .8s ease;}
+.rv.in{opacity:1; transform:none;}
+
+@media(max-width:820px){
+  .links{display:none;} nav.pill{gap:16px;}
+  .steps{grid-template-columns:1fr 1fr;}
+  #hero{align-items:flex-end; padding-bottom:110px;}
+  .dock span em{display:none;}
+}
+@media(max-width:520px){.steps{grid-template-columns:1fr;} .table .r div,.table .head div{padding:16px;}}
+@media(prefers-reduced-motion:reduce){.rv{opacity:1;transform:none;transition:none;} #loader{transition:none;}}
+a:focus-visible,.btn:focus-visible{outline:2px solid var(--ink); outline-offset:3px;}
+</style>
 </head>
-<body data-page="home" data-title-vi="Nova — AI Discord Bot" data-title-en="Nova — AI Discord Bot">
-    <canvas id="stars" aria-hidden="true"></canvas>
-    <a class="skip-link" href="#main" data-i18n="skip">Đi tới nội dung chính</a>
+<body>
 
-    <!-- ============ NAVBAR ============ -->
-    <div class="nav-wrap">
-        <div class="container">
-            <nav class="navbar" aria-label="Nova">
-                <a class="brand" href="#home">
-                    <img src="assets/avatar.png" alt="Nova avatar" width="38" height="38">
-                    Nova<span class="brand-dot">.</span>
-                </a>
+<div id="loader">
+  <div class="dots" aria-hidden="true"><i></i><i></i><i></i></div>
+  <div class="wm"><b>TRUST CHAIN</b><small>MIDDLEMAN</small></div>
+  <div class="cap">ĐANG ĐỒNG BỘ HỆ THỐNG — VUI LÒNG CHỜ</div>
+  <div class="track"><u id="bar"></u></div>
+  <div class="pc"><span id="count">0</span>%</div>
+</div>
+<div id="hero-bg"></div>
+<div id="stage"></div>
 
-                <div class="nav-links">
-                    <a href="#home" data-i18n="nav.home">Trang chủ</a>
-                    <a href="#features" data-i18n="nav.features">Tính năng</a>
-                    <a href="#commands" data-i18n="nav.commands">Lệnh</a>
-                    <a href="#help" data-i18n="nav.help">Trợ giúp</a>
-                    <a href="privacy-policy.html" data-i18n="nav.privacy">Bảo mật</a>
-                    <a href="terms-of-service.html" data-i18n="nav.terms">Điều khoản</a>
-                </div>
+<nav class="pill">
+  <a class="logo" href="#top"><i>T</i>Trust Chain</a>
+  <div class="links"><a href="#vi-sao">Vì sao</a><a href="#quy-trinh">Quy trình</a><a href="#dich-vu">Dịch vụ</a><a href="terms.html">Điều khoản</a><a href="privacy.html">Bảo mật</a></div>
+  <a class="btn" href="https://discord.gg/q6YKpc6FX3" target="_blank" rel="noopener">Vào Discord</a>
+</nav>
 
-                <div class="nav-right">
-                    <div class="seg" role="group" data-i18n-aria="nav.segAria" aria-label="Chọn ngôn ngữ">
-                        <span class="seg-thumb" aria-hidden="true"></span>
-                        <button type="button" data-lang="vi" aria-pressed="true" lang="vi">VI</button>
-                        <button type="button" data-lang="en" aria-pressed="false" lang="en">EN</button>
-                    </div>
-                    <a class="btn btn-primary btn-sm nav-invite" data-invite href="https://discord.com/oauth2/authorize?client_id=1532745879944036523">
-                        <svg viewBox="0 0 24 24" aria-hidden="true"><path class="discord-mark" d="M20.317 4.369a19.79 19.79 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037 19.736 19.736 0 0 0-4.885 1.515.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.058a.082.082 0 0 0 .031.056 19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028c.462-.63.874-1.295 1.226-1.994a.076.076 0 0 0-.041-.106 13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128c.126-.094.252-.192.372-.291a.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.009c.12.099.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.891.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03zM8.02 15.331c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.956-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.956 2.418-2.157 2.418zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.955-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.946 2.418-2.157 2.418z"/></svg>
-                        <span data-i18n="nav.invite">Mời Nova</span>
-                    </a>
-                    <button class="menu-btn" id="menuBtn" type="button" aria-expanded="false" aria-controls="mobileMenu" data-i18n-aria="nav.menuAria" aria-label="Mở menu điều hướng"><span></span></button>
-                </div>
-            </nav>
+<section id="hero"><div class="wrap" id="top">
+  <div class="badge hi">Middleman cho giao dịch Discord</div>
+  <h1 class="hi" style="--d:.12s">Giao dịch mà không phải đặt cược lòng tin.</h1>
+  <p class="hi" style="--d:.24s">Trust Chain giữ tiền, kiểm tra hàng và trung gian trade acc game giữa hai người lạ — mỗi bên một ticket riêng, staff theo dõi từng bước.</p>
+  <div class="row hi" style="--d:.36s">
+    <a class="btn" href="https://discord.gg/q6YKpc6FX3" target="_blank" rel="noopener">Tham gia server →</a>
+    <a class="btn line" href="#quy-trinh">Xem quy trình</a>
+  </div>
+</div></section>
 
-            <div class="mobile-menu" id="mobileMenu">
-                <a href="#home" data-i18n="nav.home">Trang chủ</a>
-                <a href="#features" data-i18n="nav.features">Tính năng</a>
-                <a href="#commands" data-i18n="nav.commands">Lệnh</a>
-                <a href="#help" data-i18n="nav.help">Trợ giúp</a>
-                <a href="privacy-policy.html" data-i18n="nav.privacy">Bảo mật</a>
-                <a href="terms-of-service.html" data-i18n="nav.terms">Điều khoản</a>
-                <div class="mm-foot">
-                    <a class="btn btn-primary btn-sm" data-invite href="https://discord.com/oauth2/authorize?client_id=1532745879944036523"><span data-i18n="nav.invite">Mời Nova</span></a>
-                    <a class="btn btn-blurple btn-sm" data-support href="https://discord.gg/qkyu3G6WMa"><span data-i18n="btn.support">Tham gia Support Server</span></a>
-                </div>
-            </div>
-        </div>
-    </div>
+<section class="block" id="vi-sao"><div class="wrap">
+  <p class="quote rv">“Tôi không biết người kia, và họ cũng không biết tôi. Ai chuyển trước?”</p>
+  <div class="center rv" style="margin-top:40px"><p>Đó là lý do trung gian tồn tại. Một bên thứ ba cầm tiền hoặc tài khoản cho đến khi cả hai hài lòng.</p></div>
+</div></section>
 
-    <main class="page" id="main">
-        <!-- ============ HERO ============ -->
-        <section class="hero" id="home" aria-labelledby="heroTitle">
-            <div class="container hero-grid">
-                <div class="hero-copy">
-                    <span class="kicker" data-i18n="hero.kicker">Discord Bot · Trợ lý AI</span>
-                    <h1 class="hero-title" id="heroTitle" aria-label="Nova">Nova</h1>
-                    <p class="hero-sub" data-i18n="hero.sub">Trợ lý Discord thông minh của bạn — chat AI, tạo ảnh AI, điều phối War/Backup, tổ chức sự kiện, bảo vệ Ban Zone, kiểm duyệt và quản lý máy chủ.</p>
-                    <p class="hero-desc" id="heroDesc" data-i18n-html="hero.desc">Nova chạy trên mô hình <strong>Qwen3.7-max</strong>, phản hồi bằng tiếng Việt và tiếng Anh, hoạt động 24/7 với hệ thống lệnh slash lẫn prefix.</p>
+<section class="block" id="quy-trinh"><div class="wrap center">
+  <div class="badge rv">Quy trình</div>
+  <h2 class="rv">Bốn bước, từ ticket đến bàn giao.</h2>
+  <div class="steps rv" style="text-align:left">
+    <div class="card"><b>01</b><div><h3>Tạo ticket</h3><p>Chọn Thuê hoặc Trade Đồ, chọn đối phương. Họ xác nhận trước khi ticket mở.</p></div></div>
+    <div class="card"><b>02</b><div><h3>Chốt thông tin</h3><p>Thống nhất giá, cách thanh toán và ai chịu phí trung gian.</p></div></div>
+    <div class="card"><b>03</b><div><h3>Giữ tiền / hàng</h3><p>Staff xác nhận đã nhận trước khi báo bên kia tiến hành.</p></div></div>
+    <div class="card"><b>04</b><div><h3>Bàn giao</h3><p>Bên nhận kiểm tra, xác nhận ổn. Staff giải ngân và đóng ticket.</p></div></div>
+  </div>
+</div></section>
 
-                    <div class="hero-cta">
-                        <a class="btn btn-primary" data-invite href="https://discord.com/oauth2/authorize?client_id=1532745879944036523">
-                            <svg viewBox="0 0 24 24" aria-hidden="true"><path class="discord-mark" d="M20.317 4.369a19.79 19.79 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037 19.736 19.736 0 0 0-4.885 1.515.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.058a.082.082 0 0 0 .031.056 19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028c.462-.63.874-1.295 1.226-1.994a.076.076 0 0 0-.041-.106 13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128c.126-.094.252-.192.372-.291a.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.009c.12.099.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.891.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03zM8.02 15.331c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.956-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.956 2.418-2.157 2.418zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.955-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.946 2.418-2.157 2.418z"/></svg>
-                            <span data-i18n="btn.invite">Mời Nova</span>
-                        </a>
-                        <a class="btn btn-blurple" data-support href="https://discord.gg/qkyu3G6WMa">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M17 21v-8H7v8M7 3v5h8" stroke-linecap="round" stroke-linejoin="round"/><path d="M3 21h18M5 21V7l7-4 7 4v14" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                            <span data-i18n="btn.support">Tham gia Support Server</span>
-                        </a>
-                        <a class="btn btn-ghost" href="#features">
-                            <span data-i18n="btn.explore">Khám phá tính năng</span>
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><path d="M12 5v14M6 13l6 6 6-6" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                        </a>
-                    </div>
+<section class="block" id="dich-vu"><div class="wrap center">
+  <div class="badge rv">Dịch vụ</div>
+  <h2 class="rv">Hai hình thức, chọn đúng cái bạn cần.</h2>
+  <div class="table rv" style="text-align:left">
+    <div class="head"><div>Thuê trung gian</div><div>Trade Đồ</div></div>
+    <div class="r"><div>Một bên trả tiền, bên kia giao hàng hoặc dịch vụ.</div><div>Acc game đổi acc game, không trade lấy tiền mặt.</div></div>
+    <div class="r"><div>Tiền được giữ cho đến khi bên mua xác nhận đủ.</div><div>Trade vào acc trung gian, hoặc để staff đăng nhập hộ.</div></div>
+    <div class="r"><div>Phí 15% trên giá trị giao dịch.</div><div>Ưu tiên acc trung gian để không phải đưa mật khẩu.</div></div>
+  </div>
+  <div class="stats rv">
+    <div><b>15%</b><span>phí trung gian</span></div>
+    <div><b>2</b><span>ticket riêng, mỗi bên một kênh</span></div>
+    <div><b>24h</b><span>tự đóng nếu không hoạt động</span></div>
+  </div>
+</div></section>
 
-                    <div class="hero-meta">
-                        <span class="meta-pill"><span class="dot" aria-hidden="true"></span><span data-i18n="hero.meta1">Đang hoạt động</span></span>
-                        <span class="meta-pill">🤖 <span data-i18n="hero.meta2">Qwen3.7-max</span></span>
-                        <span class="meta-pill">🌐 <span data-i18n="hero.meta3">VI · EN</span></span>
-                    </div>
-                </div>
+<section class="block"><div class="wrap"><div class="dark rv">
+  <h2>Sẵn sàng giao dịch an toàn hơn?</h2>
+  <p>Vào server, bấm Thuê hoặc Trade Đồ trong kênh ticket để bắt đầu.</p>
+  <a class="btn light" href="https://discord.gg/q6YKpc6FX3" target="_blank" rel="noopener">Tham gia Trust Chain →</a>
+</div></div></section>
 
-                <div class="hero-stage">
-                    <div class="avatar-stage" data-i18n-aria="hero.stageAria" aria-label="Avatar Nova với các mô-đun tính năng xoay quanh">
-                        <div class="avatar-glow" aria-hidden="true"></div>
-                        <div class="avatar-ring r1" aria-hidden="true"></div>
-                        <div class="avatar-ring r2" aria-hidden="true"></div>
-                        <div class="avatar-core">
-                            <img src="assets/avatar.png" alt="Avatar của Nova — ngôi sao phát sáng màu xanh" width="512" height="512">
-                        </div>
-                        <span class="orbit-chip o1">🤖 <b>Qwen3.7-max</b></span>
-                        <span class="orbit-chip o2">⚔️ War Ping</span>
-                        <span class="orbit-chip o3">☠️ Ban Zone</span>
-                        <span class="orbit-chip o4">🏆 Event</span>
-                    </div>
+<footer><div class="wrap">
+  <span>© Trust Chain · Owner nityx02</span>
+  <span><a href="terms.html">Điều khoản</a><a href="privacy.html">Bảo mật</a><a href="https://discord.gg/q6YKpc6FX3" target="_blank" rel="noopener">Discord</a></span>
+</div></footer>
 
-                    <div class="chat-card" data-i18n-aria="hero.chatAria" aria-label="Xem trước hội thoại Discord với Nova">
-                        <div class="chat-head">
-                            <svg viewBox="0 0 24 24" fill="none" stroke-width="2" aria-hidden="true"><path d="M4 9l1.5-5M18.5 9L20 4M3 9h18M4 9l1 11h14l1-11M9 13h6" stroke-linecap="round"/></svg>
-                            <span id="heroChannel" data-i18n="hero.channel">ai-chat</span>
-                        </div>
-                        <div class="chat-body">
-                            <div class="msg">
-                                <span class="msg-av" aria-hidden="true">M</span>
-                                <div>
-                                    <div class="msg-user">minh_anh <span class="time">19:42</span></div>
-                                    <div class="msg-text"><span class="cmd-inline" id="heroUserMsg">gợi ý vài cái tên server thật ngầu</span></div>
-                                </div>
-                            </div>
-                            <div class="msg">
-                                <span class="msg-av bot"><img src="assets/avatar.png" alt="" width="34" height="34"></span>
-                                <div>
-                                    <div class="msg-user msg-bot-name">Nova <span class="bot-badge">BOT</span> <span class="time">19:42</span></div>
-                                    <div class="msg-text" id="heroBotMsg">Chào bạn, mình là <strong>Nova</strong> ✨ Thử nhé: <strong>Thiên Hà Đỏ</strong>, <strong>Nova Hub</strong>, <strong>Vùng Trời Xa</strong>… Bạn thích vibe nào nhất?</div>
-                                    <div class="typing" aria-hidden="true"><i></i><i></i><i></i></div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
+<div class="dock"><span>Bắt đầu từ một ticket.<em>Phí 15%</em></span><a class="btn" href="https://discord.gg/q6YKpc6FX3" target="_blank" rel="noopener">Vào Discord →</a></div>
 
-        <!-- ============ STATS ============ -->
-        <div class="container">
-            <div class="stats-strip glass reveal" aria-label="Thống kê Nova">
-                <div class="stat-item"><b>8</b><span data-i18n="stat.n1">hệ thống tính năng</span></div>
-                <span class="stat-sep" aria-hidden="true"></span>
-                <div class="stat-item"><b>70+</b><span data-i18n="stat.n2">lệnh &amp; nút bấm</span></div>
-                <span class="stat-sep" aria-hidden="true"></span>
-                <div class="stat-item"><b>21</b><span data-i18n="stat.n3">lệnh AI</span></div>
-                <span class="stat-sep" aria-hidden="true"></span>
-                <div class="stat-item"><b>Qwen3.7-max</b><span data-i18n="stat.n4">mô hình công khai</span></div>
-                <span class="stat-sep" aria-hidden="true"></span>
-                <div class="stat-item"><b>2</b><span data-i18n="stat.n5">ngôn ngữ hỗ trợ</span></div>
-            </div>
-        </div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+(function(){
+  var reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var ld=document.getElementById('loader'),cnt=document.getElementById('count'),bar=document.getElementById('bar');
+  function finish(){
+    if(ld.classList.contains('done'))return;
+    ld.classList.add('done'); document.documentElement.classList.remove('lock');
+    setTimeout(function(){document.body.classList.add('ready');},500);
+  }
+  var dur=reduce?0:2400,t0=null;
+  function tick(now){
+    if(t0===null)t0=now;
+    var n=dur?Math.min(100,Math.round((now-t0)/dur*100)):100;
+    cnt.textContent=n; bar.style.width=n+'%';
+    if(n<100) requestAnimationFrame(tick); else setTimeout(finish,300);
+  }
+  requestAnimationFrame(tick);
+  var seen=0; setInterval(function(){ if(document.visibilityState==='visible'&&++seen>9) finish(); },1000);
 
-        <!-- ============ FEATURES ============ -->
-        <section class="section" id="features" aria-labelledby="featTitle">
-            <div class="container">
-                <header class="sec-head reveal">
-                    <span class="kicker" data-i18n="feat.kicker">Tính năng</span>
-                    <h2 class="sec-title" id="featTitle" data-i18n="feat.title">8 hệ thống, một con bot</h2>
-                    <p class="sec-lead" data-i18n="feat.lead">Nhấn vào từng thẻ để xem chi tiết đầy đủ: mô tả, danh sách lệnh, quyền hạn và ví dụ sử dụng.</p>
-                </header>
-                <div class="bento" id="featuresGrid"></div>
-            </div>
-        </section>
+  var io=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting)e.target.classList.add('in');});},{threshold:.15});
+  document.querySelectorAll('.rv').forEach(function(x){io.observe(x);});
 
-        <!-- ============ COMMANDS ============ -->
-        <section class="section" id="commands" aria-labelledby="cmdTitle">
-            <div class="container">
-                <header class="sec-head reveal">
-                    <span class="kicker" data-i18n="cmd.kicker">Command Directory</span>
-                    <h2 class="sec-title" id="cmdTitle" data-i18n="cmd.title">Toàn bộ lệnh của Nova</h2>
-                    <p class="sec-lead" data-i18n="cmd.lead">Tìm kiếm tức thì trên tên lệnh, mô tả, quyền hạn và chuyên mục — hoặc lọc theo nhóm.</p>
-                </header>
+  try{ init3D(); }catch(err){ console.error('3D init failed',err); }
 
-                <div class="cmd-toolbar reveal">
-                    <div class="search-wrap">
-                        <svg class="mag" viewBox="0 0 24 24" fill="none" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5" stroke-linecap="round"/></svg>
-                        <label class="sr-only" for="globalSearch" data-i18n="cmd.searchLabel">Tìm kiếm lệnh và tính năng</label>
-                        <input type="search" id="globalSearch" data-i18n-ph="cmd.searchPh" placeholder="Thử: info, chat, ban, warping…" autocomplete="off">
-                        <span class="search-kbd" aria-hidden="true">/</span>
-                    </div>
-                    <div class="cat-chips" id="catChips" role="group" aria-label="Lọc theo category"></div>
-                    <span class="cmd-found" id="cmdFound" aria-live="polite"></span>
-                </div>
+  function init3D(){
+    if(!window.THREE) return;
+    var el=document.getElementById('stage'),w=Math.max(1,el.clientWidth||innerWidth),h=Math.max(1,el.clientHeight||innerHeight);
+    var scene=new THREE.Scene();
+    var cam=new THREE.PerspectiveCamera(45,w/h,.1,100); cam.position.z=9;
+    var r=new THREE.WebGLRenderer({antialias:true,alpha:true});
+    r.setPixelRatio(Math.min(devicePixelRatio,2)); r.setSize(w,h); el.appendChild(r.domElement);
 
-                <div class="search-results" id="searchResults" style="display:none" aria-live="polite"></div>
-                <div id="cmdList"></div>
-            </div>
-        </section>
+    var metal=.55, rough=.3;
+    try{
+      var es=new THREE.Scene(); es.background=new THREE.Color(0x1b1c20);
+      [[8,3,0,6,0,0xffffff],[3,8,-6,0,2,0xcfd8ff],[3,8,6,0,-2,0xffe6cc],[10,2,0,-6,0,0x60646f],[6,6,0,0,-7,0xaab0c0]].forEach(function(p){
+        var m=new THREE.Mesh(new THREE.PlaneGeometry(p[0],p[1]),new THREE.MeshBasicMaterial({color:p[5],side:THREE.DoubleSide}));
+        m.position.set(p[2],p[3],p[4]); m.lookAt(0,0,0); es.add(m);
+      });
+      scene.environment=new THREE.PMREMGenerator(r).fromScene(es,.02).texture;
+      metal=1; rough=.2;
+    }catch(e2){ console.warn('env map skipped',e2); }
+    scene.add(new THREE.AmbientLight(0xffffff,.4));
+    var dl=new THREE.DirectionalLight(0xffffff,1.6); dl.position.set(4,6,7); scene.add(dl);
 
-        <!-- ============ HELP PREVIEW ============ -->
-        <section class="section" id="help" aria-labelledby="helpTitle">
-            <div class="container">
-                <header class="sec-head reveal">
-                    <span class="kicker" data-i18n="help.kicker">Help System</span>
-                    <h2 class="sec-title" id="helpTitle" data-i18n="help.title">Menu trợ giúp giống hệt trong Discord</h2>
-                    <p class="sec-lead" id="helpLead" data-i18n-html="help.lead">Bản xem trước tương tác của <code>!help</code> — chọn một category trong dropdown để xem nội dung thật. Bên dưới là mô phỏng <code>!help &lt;feature&gt;</code>.</p>
-                </header>
+    class Stadium extends THREE.Curve{
+      constructor(len,rad){super(); this.len=len; this.rad=rad;}
+      getPoint(t,out){
+        out=out||new THREE.Vector3();
+        var L=this.len,R=this.rad,P=2*L+2*Math.PI*R,d=t*P,x,y,a;
+        if(d<L){x=-L/2+d;y=R;}
+        else if(d<L+Math.PI*R){a=(d-L)/R;x=L/2+Math.sin(a)*R;y=Math.cos(a)*R;}
+        else if(d<2*L+Math.PI*R){x=L/2-(d-L-Math.PI*R);y=-R;}
+        else{a=(d-2*L-Math.PI*R)/R;x=-L/2-Math.sin(a)*R;y=-Math.cos(a)*R;}
+        return out.set(x,y,0);
+      }
+    }
+    var L=1.5,R=.55,T=.14,N=6,pitch=L+2*R-2*T;
+    var geo=new THREE.TubeGeometry(new Stadium(L,R),160,T,16,true);
+    var mat=new THREE.MeshStandardMaterial({color:0xdfe3ea,metalness:metal,roughness:rough,envMapIntensity:1.3});
+    var pivot=new THREE.Group(), spin=new THREE.Group(); pivot.add(spin); scene.add(pivot);
+    for(var i=0;i<N;i++){
+      var m=new THREE.Mesh(geo,mat);
+      m.position.x=(i-(N-1)/2)*pitch;
+      if(i%2) m.rotation.x=Math.PI/2;
+      spin.add(m);
+    }
 
-                <div class="help-grid">
-                    <div class="discord-frame reveal" id="helpPreviewFrame" data-i18n-aria="help.previewTitle" aria-label="Bản xem trước Nova Help Menu">
-                        <div id="helpMenuFrame"></div>
-                    </div>
+    var mx=0,my=0,sy=0,tsy=0,cw=0,ch=0;
+    function num(v,d){return isFinite(v)?v:d;}
+    function fit(){
+      var nw=el.clientWidth,nh=el.clientHeight;
+      if(nw>0&&nh>0&&(nw!==cw||nh!==ch)){cw=nw;ch=nh;w=nw;h=nh;cam.aspect=w/h;cam.updateProjectionMatrix();r.setSize(w,h);}
+      return cw>0&&ch>0;
+    }
+    addEventListener('mousemove',function(e){mx=e.clientX/Math.max(1,innerWidth)-.5; my=e.clientY/Math.max(1,innerHeight)-.5;});
+    addEventListener('scroll',function(){tsy=scrollY;},{passive:true});
 
-                    <aside class="help-side">
-                        <div class="help-panel glass reveal" data-delay="1">
-                            <h3 data-i18n="help.selectLabel">Chọn category để xem chi tiết</h3>
-                            <p data-i18n="help.ownerNote">Category 🔐 Admin chỉ hiển thị lệnh khi bạn bật chế độ mô phỏng owner — giống hệt cách Nova ẩn lệnh admin với người dùng thường.</p>
-                            <label class="owner-toggle">
-                                <input type="checkbox" id="ownerToggle">
-                                <span class="ot-track" aria-hidden="true"></span>
-                                <span class="ot-label" data-i18n="help.ownerToggle">Mô phỏng quyền bot owner</span>
-                            </label>
-                        </div>
-
-                        <div class="help-panel glass help-sim reveal" data-delay="2">
-                            <h3 data-i18n="help.simTitle">Mô phỏng !help &lt;feature&gt;</h3>
-                            <p data-i18n="help.simLead">Gõ tên một tính năng — Nova chỉ hiển thị trợ giúp chi tiết của đúng tính năng đó, không xổ ra cả category.</p>
-                            <div class="sim-input-row">
-                                <div class="sim-input">
-                                    <span class="prompt" aria-hidden="true">!help</span>
-                                    <label class="sr-only" for="simInput" data-i18n="help.simTitle">Mô phỏng !help feature</label>
-                                    <input type="text" id="simInput" data-i18n-ph="help.simPh" placeholder="info" autocomplete="off" spellcheck="false">
-                                </div>
-                                <button class="btn btn-primary btn-sm" id="simSend" type="button" data-i18n="help.simSend">Xem</button>
-                            </div>
-                            <div class="sim-chips" id="simChips">
-                                <span style="font-size:.78rem;color:var(--faint)" data-i18n="help.simHint">Thử nhanh:</span>
-                                <button class="sim-chip" data-sim="chat" type="button">!help chat</button>
-                                <button class="sim-chip" data-sim="info" type="button">!help info</button>
-                                <button class="sim-chip" data-sim="ban" type="button">!help ban</button>
-                                <button class="sim-chip" data-sim="mute" type="button">!help mute</button>
-                                <button class="sim-chip" data-sim="warping" type="button">!help warping</button>
-                            </div>
-                            <div id="simOutput" aria-live="polite"></div>
-                        </div>
-                    </aside>
-                </div>
-            </div>
-        </section>
-
-        <!-- ============ CTA ============ -->
-        <section class="section" id="invite" aria-labelledby="ctaTitle">
-            <div class="container">
-                <div class="cta-panel glass reveal">
-                    <svg class="cta-star" viewBox="0 0 100 100" aria-hidden="true"><path d="M50 2 L58 42 L98 50 L58 58 L50 98 L42 58 L2 50 L42 42 Z" fill="none" stroke="rgba(95,224,255,0.35)" stroke-width="1"/></svg>
-                    <span class="kicker" data-i18n="cta.kicker">Sẵn sàng?</span>
-                    <h2 id="ctaTitle" data-i18n="cta.title">Đưa Nova vào server của bạn ngay hôm nay</h2>
-                    <p data-i18n="cta.body">Thêm Nova miễn phí — AI chat, tạo ảnh, War/Backup, Event, Ban Zone và đầy đủ công cụ quản lý, thiết lập chỉ trong vài giây.</p>
-                    <div class="cta-actions">
-                        <a class="btn btn-primary" data-invite href="https://discord.com/oauth2/authorize?client_id=1532745879944036523">
-                            <svg viewBox="0 0 24 24" aria-hidden="true"><path class="discord-mark" d="M20.317 4.369a19.79 19.79 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037 19.736 19.736 0 0 0-4.885 1.515.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.058a.082.082 0 0 0 .031.056 19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028c.462-.63.874-1.295 1.226-1.994a.076.076 0 0 0-.041-.106 13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128c.126-.094.252-.192.372-.291a.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.009c.12.099.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.891.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03zM8.02 15.331c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.956-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.956 2.418-2.157 2.418zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.955-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.946 2.418-2.157 2.418z"/></svg>
-                            <span data-i18n="btn.invite">Mời Nova</span>
-                        </a>
-                        <a class="btn btn-blurple" data-support href="https://discord.gg/qkyu3G6WMa"><span data-i18n="btn.support">Tham gia Support Server</span></a>
-                    </div>
-                    <span class="cta-note" data-i18n="cta.note">Miễn phí · Không cần thẻ · Slash + Prefix commands</span>
-                </div>
-            </div>
-        </section>
-    </main>
-
-    <!-- ============ FOOTER ============ -->
-    <footer class="footer">
-        <div class="container">
-            <div class="foot-grid">
-                <div class="foot-brand">
-                    <img src="assets/avatar.png" alt="" width="46" height="46" loading="lazy">
-                    <h4>Nova</h4>
-                    <p class="owner-line"><span data-i18n="foot.owner">Sở hữu &amp; vận hành bởi</span> <b class="js-owner">nova_.inovation</b></p>
-                    <p class="tag-line" data-i18n="foot.tag">Trợ lý Discord thông minh — AI chat, tạo ảnh AI, War/Backup, sự kiện, Ban Zone và quản lý máy chủ.</p>
-                </div>
-                <nav class="foot-col" aria-label="Sản phẩm">
-                    <h5 data-i18n="foot.product">Sản phẩm</h5>
-                    <a href="#home" data-i18n="nav.home">Trang chủ</a><br>
-                    <a href="#features" data-i18n="nav.features">Tính năng</a><br>
-                    <a href="#commands" data-i18n="nav.commands">Lệnh</a><br>
-                    <a href="#help" data-i18n="nav.help">Trợ giúp</a>
-                </nav>
-                <nav class="foot-col" aria-label="Pháp lý">
-                    <h5 data-i18n="foot.legal">Pháp lý</h5>
-                    <a href="privacy-policy.html" data-i18n="foot.privacy">Chính sách bảo mật</a><br>
-                    <a href="terms-of-service.html" data-i18n="foot.terms">Điều khoản dịch vụ</a>
-                </nav>
-                <div class="foot-col">
-                    <h5 data-i18n="foot.supportH">Hỗ trợ</h5>
-                    <div class="foot-contact">
-                        <a data-support href="https://discord.gg/qkyu3G6WMa">discord.gg/qkyu3G6WMa</a>
-                        <a data-mailto href="mailto:anhbao27072011@gmail.com">anhbao27072011@gmail.com</a>
-                        <a class="btn btn-blurple btn-sm" data-invite href="https://discord.com/oauth2/authorize?client_id=1532745879944036523" style="justify-self:start;margin-top:4px"><span data-i18n="nav.invite">Mời Nova</span></a>
-                    </div>
-                </div>
-            </div>
-            <div class="foot-bottom">
-                <span>© <span class="js-year">2026</span> Nova · <span data-i18n="foot.rights">Đã đăng ký bản quyền.</span></span>
-                <span class="made">
-                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20.317 4.369a19.79 19.79 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037 19.736 19.736 0 0 0-4.885 1.515.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.058a.082.082 0 0 0 .031.056 19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028c.462-.63.874-1.295 1.226-1.994a.076.076 0 0 0-.041-.106 13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128c.126-.094.252-.192.372-.291a.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.009c.12.099.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.891.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03zM8.02 15.331c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.956-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.956 2.418-2.157 2.418zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.955-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.946 2.418-2.157 2.418z"/></svg>
-                    <span data-i18n="foot.made">Thiết kế dành riêng cho Discord</span>
-                </span>
-            </div>
-        </div>
-    </footer>
-
-    <!-- ============ FEATURE MODAL ============ -->
-    <div class="modal-backdrop" id="modalBackdrop">
-        <div class="modal" id="featureModal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
-            <div class="modal-head">
-                <span class="m-ico" id="modalIco" aria-hidden="true">🤖</span>
-                <div>
-                    <h3 id="modalTitle">AI Chatbot</h3>
-                    <div class="m-tag" id="modalTag"></div>
-                </div>
-                <button class="modal-close" id="modalClose" type="button" data-i18n-aria="modal.closeAria" aria-label="Đóng hộp thoại">✕</button>
-            </div>
-            <div class="modal-body" id="modalBody"></div>
-            <div class="modal-foot">
-                <span class="mf-hint" data-i18n="modal.escHint">Esc để đóng</span>
-                <a class="btn btn-ghost btn-sm" data-support href="https://discord.gg/qkyu3G6WMa"><span data-i18n="btn.support">Tham gia Support Server</span></a>
-                <a class="btn btn-primary btn-sm" data-invite href="https://discord.com/oauth2/authorize?client_id=1532745879944036523"><span data-i18n="modal.inviteCta">Mời Nova dùng thử</span></a>
-            </div>
-        </div>
-    </div>
-
-    <script type="module" src="script.js"></script>
+    var clock=new THREE.Clock(), span=(N-1)*pitch+L+2*R+2*T;
+    (function loop(){
+      requestAnimationFrame(loop);
+      if(!fit()) return;
+      var t=reduce?0:clock.getElapsedTime();
+      sy=num(sy+(tsy-sy)*.08,0);
+      var mobile=w<820, heroT=Math.min(1,sy/h), p=sy/Math.max(1,document.body.scrollHeight-h);
+      var visW=2*cam.position.z*Math.tan(22.5*Math.PI/180)*(w/h);
+      var tx=mobile?0:visW*.27*Math.cos(p*Math.PI*3);
+      var ty=(mobile?1.9:Math.sin(t*.5)*.15)-heroT*.9;
+      pivot.position.x=num(pivot.position.x+(tx-pivot.position.x)*.06,0);
+      pivot.position.y=num(pivot.position.y+(ty-pivot.position.y)*.06,0);
+      var sc=mobile?Math.min(.36,visW*.88/span):.46; pivot.scale.setScalar(num(sc*(1-heroT*.2),.4));
+      pivot.rotation.z=num((mobile?.25:1.05)+sy*.0008+mx*.12,1);
+      pivot.rotation.y=num(my*.25+sy*.0006,0);
+      spin.rotation.x=t*.35+sy*.0021;
+      r.render(scene,cam);
+    })();
+  }
+})();
+</script>
 </body>
 </html>
