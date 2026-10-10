@@ -1,367 +1,314 @@
-<!DOCTYPE html>
-<html lang="vi">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Trust Chain — Trung gian giao dịch Discord</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@500;600;700&family=Inter:wght@400;500&family=Instrument+Serif:ital@1&family=Playfair+Display:wght@800&family=JetBrains+Mono:wght@400&display=swap" rel="stylesheet">
-<script>
-document.documentElement.classList.add('js','lock');
-if('scrollRestoration' in history) history.scrollRestoration='manual';
-if(location.hash) history.replaceState(null,'',location.pathname+location.search);
-addEventListener('pageshow',function(){scrollTo(0,0);});
-addEventListener('load',function(){scrollTo(0,0);});
-scrollTo(0,0);
-</script>
-<style>
-:root{
-  --bg:#EFEDE8; --paper:#FFFFFF; --ink:#0A0A0A; --muted:#6B6B66; --line:#DAD7D0;
-  color-scheme:light; box-sizing:border-box;
-  padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
-}
-*{box-sizing:border-box;}
-html{scroll-behavior:smooth; scroll-padding-top:env(safe-area-inset-top,0px);}
-body{margin:0; background:var(--bg); color:var(--ink); font-family:'Inter',system-ui,sans-serif; overflow-x:hidden;}
-h1,h2,h3{font-family:'Inter Tight',sans-serif; margin:0; letter-spacing:-.03em; line-height:1.05;}
-a{color:inherit; text-decoration:none;}
-.wrap{max-width:1040px; margin:0 auto; padding:0 24px; position:relative; z-index:2;}
-
-#stage{position:absolute; top:0; left:0; width:100%; height:100svh; z-index:1; overflow:hidden; pointer-events:none;}
-#stage canvas{width:100%!important; height:100%!important; display:block;}
-
-#loader{position:fixed; inset:0; z-index:200; background:#07080A; color:#EDE8DC; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; transition:opacity .9s ease, visibility .9s;}
-#loader.done{opacity:0; visibility:hidden;}
-#loader .dots{display:flex; gap:22px; margin-bottom:46px;}
-#loader .dots i{width:9px; height:9px; border-radius:50%; background:#fff; box-shadow:0 0 14px 3px rgba(255,255,255,.55); animation:pulse 1.3s ease-in-out infinite;}
-#loader .dots i:nth-child(2){animation-delay:.22s;} #loader .dots i:nth-child(3){animation-delay:.44s;}
-@keyframes pulse{0%,100%{opacity:.25; transform:scale(.7);} 50%{opacity:1; transform:scale(1.25);}}
-#loader .wm{display:flex; align-items:flex-end; gap:14px; padding:0 20px;}
-#loader .wm b{font-family:'Playfair Display',Georgia,serif; font-weight:800; font-size:clamp(40px,7vw,64px); line-height:.9; letter-spacing:-.01em;}
-#loader .wm small{font-family:'JetBrains Mono',ui-monospace,monospace; font-size:12px; letter-spacing:.3em; color:#9A968C; padding-bottom:6px;}
-#loader .cap{font-family:'JetBrains Mono',ui-monospace,monospace; font-size:12px; letter-spacing:.28em; color:#B9B5AA; margin-top:26px; padding:0 20px;}
-#loader .track{width:min(300px,70vw); height:2px; background:rgba(255,255,255,.12); margin-top:30px; overflow:hidden;}
-#loader .track u{display:block; height:100%; width:0; background:#EDE8DC;}
-#loader .pc{font-family:'JetBrains Mono',ui-monospace,monospace; font-size:11px; letter-spacing:.2em; color:#6E6B63; margin-top:12px;}
-@media(max-width:560px){
-  #loader .wm{flex-direction:column; align-items:center; gap:12px;}
-  #loader .wm small{padding-bottom:0;}
-  #loader .cap{font-size:10.5px; letter-spacing:.16em; line-height:1.9; margin-top:22px;}
-  #loader .dots{margin-bottom:34px;}
-}
-html.lock{overflow:hidden;}
-html:not(.js) #loader{display:none;}
-
-nav.pill{position:fixed; top:calc(14px + env(safe-area-inset-top,0px)); left:50%; transform:translateX(-50%); z-index:60; display:flex; align-items:center; gap:28px; background:rgba(255,255,255,.88); backdrop-filter:blur(12px); border:1px solid var(--line); border-radius:16px; padding:8px 8px 8px 14px; box-shadow:0 8px 30px -12px rgba(0,0,0,.18); white-space:nowrap;}
-.logo{display:flex; align-items:center; gap:9px; font-family:'Inter Tight',sans-serif; font-weight:600; font-size:15px;}
-.logo i{width:26px; height:26px; border-radius:7px; background:var(--ink); display:grid; place-items:center; color:#fff; font-style:normal; font-size:13px;}
-.links{display:flex; gap:2px; font-size:13px; color:#33332f;}
-.links a{padding:8px 14px; border-radius:10px; transition:background .3s ease, color .3s ease;}
-.links a:hover{background:#ECEAE4;}
-.links a.on{background:var(--ink); color:#fff;}
-#prog{position:fixed; top:0; left:0; right:0; height:3px; background:#fff; mix-blend-mode:difference; transform:scaleX(0); transform-origin:left; z-index:90;}
-.btn{display:inline-flex; align-items:center; gap:8px; padding:10px 18px; border-radius:11px; background:var(--ink); color:#fff; font-size:13px; font-weight:500; transition:transform .2s, box-shadow .2s;}
-.btn:hover{transform:translateY(-2px); box-shadow:0 0 0 3px rgba(10,10,10,.12);}
-.btn.light{background:#fff; color:var(--ink);}
-.btn.line{background:transparent; color:var(--ink); border:1px solid var(--ink);}
-
-#hero{min-height:100svh; display:flex; align-items:flex-start; padding-top:max(130px,16svh); position:relative; z-index:2;}
-.badge{display:inline-block; background:#fff; border:1px solid var(--line); border-radius:999px; padding:6px 14px; font-size:12px; margin-bottom:22px;}
-#hero h1{font-size:clamp(40px,5.6vw,80px); max-width:1000px; font-weight:700; color:#fff;}
-#hero p{max-width:480px; color:#A9ABB3; font-size:17px; line-height:1.55; margin:20px 0 28px;}
-.row{display:flex; gap:12px; flex-wrap:wrap;}
-
-body{position:relative;}
-#hero-bg{position:absolute; top:0; left:0; right:0; height:100svh; background:#16171A; z-index:0;}
-#hero .badge{background:#24262B; border-color:#383B42; color:#D9DBE1;}
-#hero .btn{background:#fff; color:#111;}
-#hero .btn.line{background:transparent; color:#fff; border:1px solid #fff;}
-#hero .btn:hover{box-shadow:0 0 0 3px rgba(255,255,255,.18);}
-html.js .hi{opacity:0; transform:translateY(34px); transition:opacity .9s ease var(--d,0s), transform .9s cubic-bezier(.2,.7,.2,1) var(--d,0s);}
-body.ready .hi{opacity:1; transform:none;}
-@media(prefers-reduced-motion:reduce){html.js .hi{transform:none;}}
-
-.split .w{display:inline-block; overflow:hidden; vertical-align:top; padding:.15em 0 .12em; margin:-.15em 0 -.12em;}
-.split .w>i{display:inline-block; font-style:inherit; transform:translateY(112%); transition:transform .95s cubic-bezier(.2,.7,.2,1) calc(var(--i,0)*55ms);}
-.split.in .w>i{transform:none;}
-html.js .stg>*{opacity:0; translate:0 38px; transition:opacity .8s ease calc(var(--i,0)*90ms), translate .9s cubic-bezier(.2,.7,.2,1) calc(var(--i,0)*90ms);}
-html.js .stg.in>*{opacity:1; translate:0 0;}
-.card{transform:perspective(800px) rotateX(var(--rx,0deg)) rotateY(var(--ry,0deg));}
-html.js .stg>.card{transition:opacity .8s ease calc(var(--i,0)*90ms), translate .9s cubic-bezier(.2,.7,.2,1) calc(var(--i,0)*90ms), transform .25s ease-out, box-shadow .3s ease;}
-.card:hover{box-shadow:0 24px 44px -22px rgba(0,0,0,.28);}
-.stats>div{text-align:center;}
-.stats b{font-variant-numeric:tabular-nums;}
-.stats>div::after{content:""; display:block; height:2px; background:var(--ink); width:0; margin:14px auto 0; transition:width 2s cubic-bezier(.2,.7,.2,1) .3s;}
-.stats.in>div::after{width:56px;}
-.stats>div.pop b{animation:pop .7s ease;}
-@keyframes pop{35%{transform:scale(1.14); text-shadow:0 0 28px rgba(10,10,10,.28);} 100%{transform:none;}}
-@media(prefers-reduced-motion:reduce){
-  .rv{transform:translateY(12px); transition-duration:.6s;}
-  html.js .stg>*{translate:0 12px;}
-  .split .w>i{transform:none; opacity:0; transition:opacity .8s ease;}
-  .split.in .w>i{opacity:1;}
-}
-section.block{padding:120px 0; position:relative; z-index:2;}
-.center{text-align:center;}
-.center h2{font-size:clamp(30px,5vw,56px); max-width:760px; margin:0 auto;}
-.center p{color:var(--muted); max-width:460px; margin:18px auto 0; line-height:1.6;}
-.quote{font-family:'Instrument Serif',serif; font-style:italic; font-weight:400; font-size:clamp(34px,6vw,68px); line-height:1.08; letter-spacing:-.02em; max-width:900px; margin:0 auto; text-align:center;}
-
-.table{margin:56px auto 0; max-width:900px; background:var(--paper); border:1px solid var(--line); border-radius:22px; overflow:hidden;}
-.table .head,.table .r{display:grid; grid-template-columns:1fr 1fr;}
-.table .head div{padding:16px 24px; font-size:12px; color:var(--muted); border-bottom:1px solid var(--line); background:#F4F2ED;}
-.table .head div+div,.table .r div+div{border-left:1px solid var(--line);}
-.table .r div{padding:22px 24px; font-size:15px; line-height:1.5; border-bottom:1px solid var(--line);}
-.table .r:last-child div{border-bottom:0;}
-.table .r div:last-child{font-weight:500;}
-.table .r div:first-child{color:var(--muted);}
-
-.steps{display:grid; grid-template-columns:repeat(4,1fr); gap:14px; max-width:1000px; margin:56px auto 0;}
-.card{background:var(--paper); border:1px solid var(--line); border-radius:22px; padding:26px 22px; min-height:220px; display:block;}
-.card b{display:block; margin-bottom:64px; font-family:'Inter Tight',sans-serif; font-size:13px; color:var(--muted); font-weight:500;}
-.card h3{font-size:22px; margin-bottom:8px;}
-.card p{font-size:14px; line-height:1.55; color:var(--muted); margin:0;}
-
-.stats{display:flex; justify-content:center; gap:clamp(28px,7vw,90px); flex-wrap:wrap; margin-top:64px;}
-.stats b{display:block; font-family:'Inter Tight',sans-serif; font-size:clamp(40px,6vw,72px); letter-spacing:-.04em;}
-.stats span{font-size:13px; color:var(--muted);}
-
-.dark{background:var(--ink); color:#fff; border-radius:28px; padding:80px 28px; text-align:center; max-width:960px; margin:0 auto;}
-.dark h2{font-size:clamp(30px,5vw,54px); max-width:640px; margin:0 auto;}
-.dark p{color:#A8A8A2; margin:18px auto 30px; max-width:420px; line-height:1.6;}
-.dark .btn{box-shadow:0 0 0 1px #fff, 0 0 40px rgba(255,255,255,.25); padding:14px 26px; font-size:14px;}
-
-footer{position:relative; z-index:2; padding:40px 0 120px; font-size:13px; color:var(--muted);}
-footer .wrap{display:flex; justify-content:space-between; flex-wrap:wrap; gap:12px;}
-footer a{margin-left:18px;} footer a:hover{color:var(--ink);}
-
-.dock{position:fixed; bottom:calc(16px + env(safe-area-inset-bottom,0px)); left:50%; transform:translateX(-50%); z-index:60; display:flex; align-items:center; gap:22px; background:rgba(255,255,255,.92); backdrop-filter:blur(12px); border:1px solid var(--line); border-radius:16px; padding:8px 8px 8px 20px; font-size:13px; box-shadow:0 8px 30px -12px rgba(0,0,0,.2); white-space:nowrap;}
-.dock span em{font-style:normal; color:var(--muted); margin-left:8px;}
-
-.rv{opacity:0; transform:translateY(28px); transition:opacity .8s ease, transform .8s ease;}
-.rv.in{opacity:1; transform:none;}
-
-@media(max-width:820px){
-  .links{display:none;} nav.pill{gap:16px;}
-  .steps{grid-template-columns:1fr 1fr;}
-  .dock span em{display:none;}
-}
-@media(max-width:520px){.steps{grid-template-columns:1fr;} .table .r div,.table .head div{padding:16px;}}
-a:focus-visible,.btn:focus-visible{outline:2px solid var(--ink); outline-offset:3px;}
-</style>
-</head>
-<body>
-
-<div id="loader">
-  <div class="dots" aria-hidden="true"><i></i><i></i><i></i></div>
-  <div class="wm"><b>TRUST CHAIN</b><small>MIDDLEMAN</small></div>
-  <div class="cap">ĐANG ĐỒNG BỘ HỆ THỐNG — VUI LÒNG CHỜ</div>
-  <div class="track"><u id="bar"></u></div>
-  <div class="pc"><span id="count">0</span>%</div>
-</div>
-<div id="prog"></div>
-<div id="hero-bg"></div>
-<div id="stage"></div>
-
-<nav class="pill">
-  <a class="logo" href="#top"><i>T</i>Trust Chain</a>
-  <div class="links"><a href="#top" data-s="hero">Trang chủ</a><a href="#vi-sao" data-s="vi-sao">Vì sao</a><a href="#quy-trinh" data-s="quy-trinh">Quy trình</a><a href="#dich-vu" data-s="dich-vu">Dịch vụ</a><a href="terms.html">Điều khoản</a><a href="privacy.html">Bảo mật</a></div>
-  <a class="btn" href="https://discord.gg/q6YKpc6FX3" target="_blank" rel="noopener">Vào Discord</a>
-</nav>
-
-<section id="hero"><div class="wrap" id="top">
-  <div class="badge hi">Middleman cho giao dịch Discord</div>
-  <h1 class="hi" style="--d:.12s">Giao dịch mà không phải đặt cược lòng tin.</h1>
-  <p class="hi" style="--d:.24s">Trust Chain giữ tiền, kiểm tra hàng và trung gian trade acc game giữa hai người lạ — mỗi bên một ticket riêng, staff theo dõi từng bước.</p>
-  <div class="row hi" style="--d:.36s">
-    <a class="btn" href="https://discord.gg/q6YKpc6FX3" target="_blank" rel="noopener">Tham gia server →</a>
-    <a class="btn line" href="#quy-trinh">Xem quy trình</a>
-  </div>
-</div></section>
-
-<section class="block" id="vi-sao"><div class="wrap">
-  <p class="quote split">“Tôi không biết người kia, và họ cũng không biết tôi. Ai chuyển trước?”</p>
-  <div class="center rv" style="margin-top:40px"><p>Đó là lý do trung gian tồn tại. Một bên thứ ba cầm tiền hoặc tài khoản cho đến khi cả hai hài lòng.</p></div>
-</div></section>
-
-<section class="block" id="quy-trinh"><div class="wrap center">
-  <div class="badge rv">Quy trình</div>
-  <h2 class="split">Bốn bước, từ ticket đến bàn giao.</h2>
-  <div class="steps stg" style="text-align:left">
-    <div class="card"><b>01</b><h3>Tạo ticket</h3><p>Chọn Thuê hoặc Trade Đồ, chọn đối phương. Họ xác nhận trước khi ticket mở.</p></div>
-    <div class="card"><b>02</b><h3>Chốt thông tin</h3><p>Thống nhất giá, cách thanh toán và ai chịu phí trung gian.</p></div>
-    <div class="card"><b>03</b><h3>Giữ tiền / hàng</h3><p>Staff xác nhận đã nhận trước khi báo bên kia tiến hành.</p></div>
-    <div class="card"><b>04</b><h3>Bàn giao</h3><p>Bên nhận kiểm tra, xác nhận ổn. Staff giải ngân và đóng ticket.</p></div>
-  </div>
-</div></section>
-
-<section class="block" id="dich-vu"><div class="wrap center">
-  <div class="badge rv">Dịch vụ</div>
-  <h2 class="split">Hai hình thức, chọn đúng cái bạn cần.</h2>
-  <div class="table stg" style="text-align:left">
-    <div class="head"><div>Thuê trung gian</div><div>Trade Đồ</div></div>
-    <div class="r"><div>Một bên trả tiền, bên kia giao hàng hoặc dịch vụ.</div><div>Acc game đổi acc game, không trade lấy tiền mặt.</div></div>
-    <div class="r"><div>Tiền được giữ cho đến khi bên mua xác nhận đủ.</div><div>Trade vào acc trung gian, hoặc để staff đăng nhập hộ.</div></div>
-    <div class="r"><div>Phí 15% trên giá trị giao dịch.</div><div>Ưu tiên acc trung gian để không phải đưa mật khẩu.</div></div>
-  </div>
-  <div class="stats stg">
-    <div><b data-to="15" data-suf="%">0%</b><span>phí trung gian</span></div>
-    <div><b data-to="2" data-suf="">0</b><span>ticket riêng, mỗi bên một kênh</span></div>
-    <div><b data-to="24" data-suf="h">0h</b><span>tự đóng nếu không hoạt động</span></div>
-  </div>
-</div></section>
-
-<section class="block"><div class="wrap"><div class="dark rv">
-  <h2 class="split">Sẵn sàng giao dịch an toàn hơn?</h2>
-  <p>Vào server, bấm Thuê hoặc Trade Đồ trong kênh ticket để bắt đầu.</p>
-  <a class="btn light" href="https://discord.gg/q6YKpc6FX3" target="_blank" rel="noopener">Tham gia Trust Chain →</a>
-</div></div></section>
-
-<footer><div class="wrap">
-  <span>© Trust Chain · Owner nityx02</span>
-  <span><a href="terms.html">Điều khoản</a><a href="privacy.html">Bảo mật</a><a href="https://discord.gg/q6YKpc6FX3" target="_blank" rel="noopener">Discord</a></span>
-</div></footer>
-
-<div class="dock"><span>Bắt đầu từ một ticket.<em>Phí 15%</em></span><a class="btn" href="https://discord.gg/q6YKpc6FX3" target="_blank" rel="noopener">Vào Discord →</a></div>
-
-<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-<script>
+/* ==========================================================
+   TRUST CHAIN — SHARED MUSIC PLAYER
+   Nhạc tiếp tục khi chuyển trang (sessionStorage)
+   ========================================================== */
 (function(){
-  var reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
-  var ld=document.getElementById('loader'),cnt=document.getElementById('count'),bar=document.getElementById('bar');
-  function finish(){
-    if(ld.classList.contains('done'))return;
-    ld.classList.add('done'); document.documentElement.classList.remove('lock');
-    setTimeout(function(){document.body.classList.add('ready');},500);
-  }
-  var dur=2000+Math.random()*2000,t0=document.visibilityState==='visible'?performance.now():null;
-  function tick(now){
-    if(t0===null)t0=now;
-    var u=dur?Math.min(1,(now-t0)/dur):1,n=Math.round(u*100);
-    cnt.textContent=n; bar.style.width=n+'%';
-    if(u<1) requestAnimationFrame(tick); else setTimeout(finish,400);
-  }
-  requestAnimationFrame(tick);
-  var seen=0; setInterval(function(){ if(document.visibilityState==='visible'&&++seen>8) finish(); },1000);
+  'use strict';
 
-  var io=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting)e.target.classList.add('in');});},{threshold:.15});
-  document.querySelectorAll('.split').forEach(function(el){
-    var txt=el.textContent.trim().split(/\s+/); el.setAttribute('aria-label',el.textContent.trim());
-    el.innerHTML=txt.map(function(w,i){return '<span class="w" aria-hidden="true"><i style="--i:'+i+'">'+w+'</i></span>';}).join(' ');
-  });
-  document.querySelectorAll('.stg').forEach(function(g){
-    Array.prototype.forEach.call(g.children,function(c,i){c.style.setProperty('--i',i);});
-  });
-  document.querySelectorAll('.rv,.split,.stg').forEach(function(x){io.observe(x);});
+  /* ====== CẤU HÌNH DANH SÁCH NHẠC ======
+     Thêm/xóa bài tùy ý. Đường dẫn tính từ file HTML.
+     Hỗ trợ: .mp3, .m4a, .ogg, .wav, .mp4 (chỉ lấy âm thanh) */
+  var songs = [
+    { src: 'music/bai-hat-1.mp3', title: 'Bài hát 1', artist: 'Nghệ sĩ 1' },
+    { src: 'music/bai-hat-2.mp3', title: 'Bài hát 2', artist: 'Nghệ sĩ 2' },
+    { src: 'music/bai-hat-3.mp3', title: 'Bài hát 3', artist: 'Nghệ sĩ 3' }
+  ];
 
-  function countUp(el){
-    var to=+el.dataset.to,suf=el.dataset.suf||'',t0=null,d=2200;
-    function f(now){
-      if(t0===null)t0=now;
-      var u=Math.min(1,(now-t0)/d),e=u===1?1:1-Math.pow(2,-10*u);
-      el.textContent=Math.round(to*e)+suf;
-      if(u<1) requestAnimationFrame(f); else el.parentNode.classList.add('pop');
+  if(!songs.length) return;
+
+  /* ====== STATE ====== */
+  var KEY = 'tc_music_v1';
+  var saved = {};
+  try { saved = JSON.parse(sessionStorage.getItem(KEY) || '{}'); } catch(e){ saved = {}; }
+
+  var currentIndex = (typeof saved.index === 'number' && saved.index >= 0 && saved.index < songs.length)
+                     ? saved.index
+                     : Math.floor(Math.random() * songs.length);
+  var isShuffle   = saved.shuffle !== false;
+  var isLoop      = !!saved.loop;
+  var isPlaying   = false;
+  var pendingTime = (typeof saved.time === 'number' && saved.time > 0) ? saved.time : 0;
+  var wantResume  = saved.playing === true;
+  var savedVolume = (typeof saved.volume === 'number') ? saved.volume : 0.7;
+
+  /* ====== CSS ====== */
+  var CSS = `
+  #music-toggle{position:fixed;bottom:calc(24px + env(safe-area-inset-bottom,0px));right:24px;z-index:100;width:48px;height:48px;border-radius:50%;background:rgba(30,30,30,.85);color:#fff;border:1px solid rgba(255,255,255,.2);cursor:pointer;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);transition:transform .3s ease,background .3s ease;box-shadow:0 8px 30px -12px rgba(0,0,0,.4)}
+  #music-toggle:hover{transform:scale(1.1);background:rgba(50,50,50,.9)}
+  #music-toggle svg{width:20px;height:20px;fill:currentColor}
+  #music-player{position:fixed;bottom:calc(84px + env(safe-area-inset-bottom,0px));right:24px;z-index:100;width:340px;background:rgba(30,30,30,.85);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border:1px solid rgba(255,255,255,.1);border-radius:24px;padding:16px;color:#fff;font-family:'Inter',system-ui,sans-serif;box-shadow:0 12px 40px -10px rgba(0,0,0,.5);transition:opacity .3s ease,transform .3s ease,visibility .3s;opacity:0;visibility:hidden;transform:translateY(20px)}
+  #music-player.show{opacity:1;visibility:visible;transform:translateY(0)}
+  .mp-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px}
+  .mp-title-wrap{text-align:center;flex:1;min-width:0}
+  .mp-title{font-size:15px;font-weight:600;margin:0 0 2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:#fff}
+  .mp-artist{font-size:12px;color:#A0A0A0;margin:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .mp-visualizer{width:24px;height:24px;display:flex;align-items:flex-end;gap:2px;justify-content:center;flex-shrink:0;transition:opacity .3s}
+  .mp-visualizer span{width:3px;background:#fff;border-radius:2px;animation:mp-vis 1s ease-in-out infinite alternate}
+  .mp-visualizer span:nth-child(1){height:8px;animation-delay:0s}
+  .mp-visualizer span:nth-child(2){height:16px;animation-delay:.2s}
+  .mp-visualizer span:nth-child(3){height:12px;animation-delay:.4s}
+  .mp-visualizer span:nth-child(4){height:20px;animation-delay:.1s}
+  @keyframes mp-vis{0%{height:4px}100%{height:20px}}
+  .mp-progress-wrap{display:flex;align-items:center;gap:10px;font-size:11px;color:#B0B0B0;margin-bottom:16px;font-variant-numeric:tabular-nums}
+  .mp-progress-bar{flex:1;height:4px;background:rgba(255,255,255,.15);border-radius:2px;position:relative;cursor:pointer}
+  .mp-progress{height:100%;background:#fff;border-radius:2px;width:0%;position:relative;transition:width .1s linear}
+  .mp-progress::after{content:'';position:absolute;right:-4px;top:-3px;width:10px;height:10px;background:#fff;border-radius:50%;opacity:0;transition:opacity .2s}
+  .mp-progress-bar:hover .mp-progress::after{opacity:1}
+  .mp-controls{display:flex;justify-content:space-between;align-items:center;padding:0 8px}
+  .mp-btn{background:none;border:none;color:#fff;cursor:pointer;padding:8px;display:flex;align-items:center;justify-content:center;opacity:.7;transition:opacity .2s,transform .2s}
+  .mp-btn:hover{opacity:1;transform:scale(1.1)}
+  .mp-btn svg{width:20px;height:20px;fill:currentColor}
+  .mp-btn.play-pause svg{width:28px;height:28px}
+  .mp-btn.active{opacity:1;filter:drop-shadow(0 0 6px rgba(255,255,255,.6))}
+  @media(max-width:520px){
+    #music-player{width:calc(100vw - 48px);right:24px;bottom:calc(90px + env(safe-area-inset-bottom,0px))}
+    #music-toggle{bottom:calc(24px + env(safe-area-inset-bottom,0px));right:24px}
+  }
+  `;
+
+  /* ====== HTML ====== */
+  var HTML = `
+  <button id="music-toggle" aria-label="Bật/tắt trình phát nhạc">
+    <svg viewBox="0 0 24 24"><path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/></svg>
+  </button>
+  <div id="music-player" aria-label="Trình phát nhạc">
+    <div class="mp-header">
+      <div style="width:24px;flex-shrink:0"></div>
+      <div class="mp-title-wrap">
+        <p class="mp-title" id="mp-title">Đang tải...</p>
+        <p class="mp-artist" id="mp-artist">Trust Chain Music</p>
+      </div>
+      <div class="mp-visualizer" aria-hidden="true"><span></span><span></span><span></span><span></span></div>
+    </div>
+    <div class="mp-progress-wrap">
+      <span id="mp-current">0:00</span>
+      <div class="mp-progress-bar" id="mp-progress-bar"><div class="mp-progress" id="mp-progress"></div></div>
+      <span id="mp-duration">0:00</span>
+    </div>
+    <div class="mp-controls">
+      <button class="mp-btn" id="mp-shuffle" title="Ngẫu nhiên"><svg viewBox="0 0 24 24"><path d="M10.59 9.17L5.41 4 4 5.41l5.17 5.17 1.42-1.41zM14.5 4l2.04 2.04L4 18.59 5.41 20 17.96 7.46 20 9.5V4h-5.5zm.33 9.41l-1.41 1.41 3.13 3.13L14.5 20H20v-5.5l-2.04 2.04-3.13-3.13z"/></svg></button>
+      <button class="mp-btn" id="mp-prev" title="Bài trước"><svg viewBox="0 0 24 24"><path d="M6 6h2v12H6zm3.5 6l8.5 6V6z"/></svg></button>
+      <button class="mp-btn play-pause" id="mp-play-pause" title="Phát / Tạm dừng">
+        <svg id="mp-icon-play" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+        <svg id="mp-icon-pause" viewBox="0 0 24 24" style="display:none"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
+      </button>
+      <button class="mp-btn" id="mp-next" title="Bài tiếp theo"><svg viewBox="0 0 24 24"><path d="M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z"/></svg></button>
+      <button class="mp-btn" id="mp-loop" title="Lặp lại"><svg viewBox="0 0 24 24"><path d="M7 7h10v3l4-4-4-4v3H5v6h2V7zm10 10H7v-3l-4 4 4 4v-3h12v-6h-2v4z"/></svg></button>
+    </div>
+  </div>
+  `;
+
+  /* ====== INIT ====== */
+  function init(){
+    var st = document.createElement('style');
+    st.textContent = CSS;
+    document.head.appendChild(st);
+    document.body.insertAdjacentHTML('beforeend', HTML);
+    setup();
+  }
+
+  if(document.readyState === 'loading'){
+    document.addEventListener('DOMContentLoaded', init);
+  } else {
+    init();
+  }
+
+  /* ====== PLAYER LOGIC ====== */
+  function setup(){
+    var audio = new Audio();
+    audio.volume = savedVolume;
+    audio.preload = 'auto';
+    audio.loop = isLoop;
+
+    var player       = document.getElementById('music-player');
+    var toggleBtn    = document.getElementById('music-toggle');
+    var titleEl      = document.getElementById('mp-title');
+    var artistEl     = document.getElementById('mp-artist');
+    var playPauseBtn = document.getElementById('mp-play-pause');
+    var iconPlay     = document.getElementById('mp-icon-play');
+    var iconPause    = document.getElementById('mp-icon-pause');
+    var prevBtn      = document.getElementById('mp-prev');
+    var nextBtn      = document.getElementById('mp-next');
+    var shuffleBtn   = document.getElementById('mp-shuffle');
+    var loopBtn      = document.getElementById('mp-loop');
+    var progressBar  = document.getElementById('mp-progress-bar');
+    var progress     = document.getElementById('mp-progress');
+    var currentTimeEl= document.getElementById('mp-current');
+    var durationEl   = document.getElementById('mp-duration');
+    var visualizer   = player.querySelector('.mp-visualizer');
+
+    function saveState(){
+      try {
+        sessionStorage.setItem(KEY, JSON.stringify({
+          index: currentIndex,
+          time: audio.currentTime || 0,
+          playing: isPlaying,
+          shuffle: isShuffle,
+          loop: isLoop,
+          volume: audio.volume
+        }));
+      } catch(e){}
     }
-    requestAnimationFrame(f);
-  }
-  var io2=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){io2.unobserve(e.target);countUp(e.target);}});},{threshold:.6});
-  document.querySelectorAll('.stats b[data-to]').forEach(function(b){io2.observe(b);});
 
-  var navs=document.querySelectorAll('.links a[data-s]'),prog=document.getElementById('prog'),hw=document.getElementById('top');
-  function onScroll(){
-    var y=innerHeight*.45,cur='hero';
-    ['hero','vi-sao','quy-trinh','dich-vu'].forEach(function(id){var e=document.getElementById(id);if(e&&e.getBoundingClientRect().top<=y)cur=id;});
-    navs.forEach(function(a){a.classList.toggle('on',a.dataset.s===cur);});
-    var m=document.documentElement.scrollHeight-innerHeight;
-    prog.style.transform='scaleX('+(m>0?Math.min(1,scrollY/m):0)+')';
-    if(!reduce){var k=Math.min(1,scrollY/innerHeight);hw.style.transform='translateY('+(scrollY*.18)+'px)';hw.style.opacity=Math.max(0,1-k*1.1);}
-  }
-  addEventListener('scroll',onScroll,{passive:true}); onScroll();
+    function loadSong(i){
+      var s = songs[i];
+      audio.src = s.src;
+      titleEl.textContent = s.title;
+      artistEl.textContent = s.artist;
+    }
 
-  if(!reduce&&matchMedia('(hover:hover)').matches){
-    document.querySelectorAll('.card').forEach(function(c){
-      c.addEventListener('mousemove',function(e){var b=c.getBoundingClientRect(),x=(e.clientX-b.left)/b.width-.5,y=(e.clientY-b.top)/b.height-.5;c.style.setProperty('--ry',(x*10)+'deg');c.style.setProperty('--rx',(-y*10)+'deg');});
-      c.addEventListener('mouseleave',function(){c.style.setProperty('--rx','0deg');c.style.setProperty('--ry','0deg');});
-    });
-  }
+    function updatePlayIcon(){
+      iconPlay.style.display  = isPlaying ? 'none' : 'block';
+      iconPause.style.display = isPlaying ? 'block' : 'none';
+    }
 
-  requestAnimationFrame(function(){requestAnimationFrame(function(){ try{ init3D(); }catch(err){ console.error('3D init failed',err); } });});
-
-  function init3D(){
-    if(!window.THREE) return;
-    var el=document.getElementById('stage'),w=Math.max(1,el.clientWidth||innerWidth),h=Math.max(1,el.clientHeight||innerHeight);
-    var scene=new THREE.Scene();
-    var cam=new THREE.PerspectiveCamera(45,w/h,.1,100); cam.position.z=9;
-    var r=new THREE.WebGLRenderer({antialias:true,alpha:true});
-    r.setPixelRatio(Math.min(devicePixelRatio,2)); r.setSize(w,h); el.appendChild(r.domElement);
-
-    var metal=.55, rough=.3;
-    try{
-      var es=new THREE.Scene(); es.background=new THREE.Color(0x1b1c20);
-      [[8,3,0,6,0,0xffffff],[3,8,-6,0,2,0xcfd8ff],[3,8,6,0,-2,0xffe6cc],[10,2,0,-6,0,0x60646f],[6,6,0,0,-7,0xaab0c0]].forEach(function(p){
-        var m=new THREE.Mesh(new THREE.PlaneGeometry(p[0],p[1]),new THREE.MeshBasicMaterial({color:p[5],side:THREE.DoubleSide}));
-        m.position.set(p[2],p[3],p[4]); m.lookAt(0,0,0); es.add(m);
+    function playSong(){
+      var p = audio.play();
+      if(!p || !p.then) return;
+      p.then(function(){
+        isPlaying = true;
+        updatePlayIcon();
+        visualizer.style.opacity = '1';
+        saveState();
+      }).catch(function(){
+        isPlaying = false;
+        updatePlayIcon();
+        visualizer.style.opacity = '0.3';
       });
-      scene.environment=new THREE.PMREMGenerator(r).fromScene(es,.02).texture;
-      metal=1; rough=.2;
-    }catch(e2){ console.warn('env map skipped',e2); }
-    scene.add(new THREE.AmbientLight(0xffffff,.4));
-    var dl=new THREE.DirectionalLight(0xffffff,1.6); dl.position.set(4,6,7); scene.add(dl);
+    }
 
-    class Stadium extends THREE.Curve{
-      constructor(len,rad){super(); this.len=len; this.rad=rad;}
-      getPoint(t,out){
-        out=out||new THREE.Vector3();
-        var L=this.len,R=this.rad,P=2*L+2*Math.PI*R,d=t*P,x,y,a;
-        if(d<L){x=-L/2+d;y=R;}
-        else if(d<L+Math.PI*R){a=(d-L)/R;x=L/2+Math.sin(a)*R;y=Math.cos(a)*R;}
-        else if(d<2*L+Math.PI*R){x=L/2-(d-L-Math.PI*R);y=-R;}
-        else{a=(d-2*L-Math.PI*R)/R;x=-L/2-Math.sin(a)*R;y=-Math.cos(a)*R;}
-        return out.set(x,y,0);
+    function pauseSong(){
+      isPlaying = false;
+      audio.pause();
+      updatePlayIcon();
+      visualizer.style.opacity = '0.3';
+      saveState();
+    }
+
+    function pickRandom(){
+      if(songs.length <= 1) return 0;
+      var i;
+      do { i = Math.floor(Math.random()*songs.length); } while(i === currentIndex);
+      return i;
+    }
+
+    function nextSong(){
+      currentIndex = isShuffle ? pickRandom() : (currentIndex + 1) % songs.length;
+      loadSong(currentIndex);
+      if(isPlaying) playSong(); else { updatePlayIcon(); saveState(); }
+    }
+
+    function prevSong(){
+      currentIndex = isShuffle ? pickRandom() : (currentIndex - 1 + songs.length) % songs.length;
+      loadSong(currentIndex);
+      if(isPlaying) playSong(); else { updatePlayIcon(); saveState(); }
+    }
+
+    function fmt(sec){
+      if(!isFinite(sec) || sec < 0) return '0:00';
+      var m = Math.floor(sec/60), s = Math.floor(sec%60);
+      return m + ':' + (s<10?'0':'') + s;
+    }
+
+    /* ===== SỰ KIỆN ===== */
+    toggleBtn.addEventListener('click', function(){ player.classList.toggle('show'); });
+    playPauseBtn.addEventListener('click', function(){ if(isPlaying) pauseSong(); else playSong(); });
+    nextBtn.addEventListener('click', nextSong);
+    prevBtn.addEventListener('click', prevSong);
+
+    shuffleBtn.addEventListener('click', function(){
+      isShuffle = !isShuffle;
+      shuffleBtn.classList.toggle('active', isShuffle);
+      saveState();
+    });
+
+    loopBtn.addEventListener('click', function(){
+      isLoop = !isLoop;
+      audio.loop = isLoop;
+      loopBtn.classList.toggle('active', isLoop);
+      saveState();
+    });
+
+    progressBar.addEventListener('click', function(e){
+      if(!audio.duration) return;
+      var rect = progressBar.getBoundingClientRect();
+      var pos = (e.clientX - rect.left) / rect.width;
+      audio.currentTime = pos * audio.duration;
+    });
+
+    audio.addEventListener('timeupdate', function(){
+      if(audio.duration){
+        progress.style.width = (audio.currentTime / audio.duration * 100) + '%';
+        currentTimeEl.textContent = fmt(audio.currentTime);
+        durationEl.textContent = '-' + fmt(audio.duration - audio.currentTime);
+      }
+    });
+
+    audio.addEventListener('loadedmetadata', function(){
+      durationEl.textContent = '-' + fmt(audio.duration);
+      if(pendingTime > 0 && pendingTime < audio.duration){
+        try { audio.currentTime = pendingTime; } catch(e){}
+      }
+      pendingTime = 0;
+    });
+
+    audio.addEventListener('ended', function(){
+      if(isLoop){ audio.currentTime = 0; playSong(); }
+      else nextSong();
+    });
+
+    /* Lưu state */
+    addEventListener('beforeunload', saveState);
+    addEventListener('pagehide', saveState);
+    setInterval(saveState, 2000);
+
+    /* Khởi tạo UI */
+    loadSong(currentIndex);
+    shuffleBtn.classList.toggle('active', isShuffle);
+    loopBtn.classList.toggle('active', isLoop);
+    visualizer.style.opacity = '0.3';
+    updatePlayIcon();
+
+    /* Nếu trang trước đang phát → thử phát tiếp */
+    if(wantResume){
+      player.classList.add('show');
+
+      var tryResume = function(){
+        var p = audio.play();
+        if(!p || !p.then) return;
+        p.then(function(){
+          isPlaying = true;
+          updatePlayIcon();
+          visualizer.style.opacity = '1';
+          saveState();
+        }).catch(function(){
+          isPlaying = false;
+          updatePlayIcon();
+          var onInteract = function(){
+            if(isPlaying) return;
+            var pp = audio.play();
+            if(!pp || !pp.then) return;
+            pp.then(function(){
+              isPlaying = true;
+              updatePlayIcon();
+              visualizer.style.opacity = '1';
+              saveState();
+            }).catch(function(){});
+            ['click','touchstart','keydown'].forEach(function(ev){
+              document.removeEventListener(ev, onInteract);
+            });
+          };
+          ['click','touchstart','keydown'].forEach(function(ev){
+            document.addEventListener(ev, onInteract);
+          });
+        });
+      };
+
+      if(audio.readyState >= 1){
+        tryResume();
+      } else {
+        audio.addEventListener('loadedmetadata', tryResume, { once: true });
       }
     }
-    var L=1.5,R=.55,T=.14,N=11,pitch=L+2*R-2*T;
-    var geo=new THREE.TubeGeometry(new Stadium(L,R),160,T,16,true);
-    var mat=new THREE.MeshStandardMaterial({color:0xdfe3ea,metalness:metal,roughness:rough,envMapIntensity:1.3});
-    var pivot=new THREE.Group(), spin=new THREE.Group(); pivot.add(spin); scene.add(pivot);
-    for(var i=0;i<N;i++){
-      var m=new THREE.Mesh(geo,mat);
-      m.position.x=(i-(N-1)/2)*pitch;
-      if(i%2) m.rotation.x=Math.PI/2;
-      spin.add(m);
-    }
-
-    var mx=0,my=0,sy=0,tsy=0,cw=0,ch=0;
-    function num(v,d){return isFinite(v)?v:d;}
-    function fit(){
-      var nw=el.clientWidth,nh=el.clientHeight;
-      if(nw>0&&nh>0&&(nw!==cw||nh!==ch)){cw=nw;ch=nh;w=nw;h=nh;cam.aspect=w/h;cam.updateProjectionMatrix();r.setSize(w,h);}
-      return cw>0&&ch>0;
-    }
-    addEventListener('mousemove',function(e){mx=e.clientX/Math.max(1,innerWidth)-.5; my=e.clientY/Math.max(1,innerHeight)-.5;});
-    addEventListener('scroll',function(){tsy=scrollY;},{passive:true});
-
-    var clock=new THREE.Clock(), span=(N-1)*pitch+L+2*R+2*T;
-    (function loop(){
-      requestAnimationFrame(loop);
-      if(!fit()) return;
-      var t=clock.getElapsedTime()*(reduce?.4:1);
-      sy=num(sy+(tsy-sy)*.08,0);
-      var mobile=w<820, heroT=Math.min(1,sy/h);
-      var tx=Math.sin(t*.2)*.9-sy*.003;
-      var ty=(mobile?-2.9:-2.5)+Math.sin(t*.6)*.08-heroT*.6;
-      pivot.position.x=num(pivot.position.x+(tx-pivot.position.x)*.08,0);
-      pivot.position.y=num(pivot.position.y+(ty-pivot.position.y)*.08,-2.5);
-      pivot.scale.setScalar(mobile?.6:.92);
-      pivot.rotation.z=num(-.05+mx*.05,0);
-      pivot.rotation.y=num(my*.2,0);
-      spin.rotation.x=t*.35+sy*.002;
-      if(ld.classList.contains('done')) r.render(scene,cam);
-    })();
   }
 })();
-</script>
-<script src="music.js"></script>
-</body>
-</html>
