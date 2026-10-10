@@ -30,7 +30,6 @@ a{color:inherit; text-decoration:none;}
 #stage{position:absolute; top:0; left:0; width:100%; height:100svh; z-index:1; overflow:hidden; pointer-events:none;}
 #stage canvas{width:100%!important; height:100%!important; display:block;}
 
-/* ---------- Loader ---------- */
 #loader{position:fixed; inset:0; z-index:200; background:#07080A; color:#EDE8DC; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; transition:opacity .9s ease, visibility .9s;}
 #loader.done{opacity:0; visibility:hidden;}
 #loader .dots{display:flex; gap:22px; margin-bottom:46px;}
@@ -53,7 +52,6 @@ a{color:inherit; text-decoration:none;}
 html.lock{overflow:hidden;}
 html:not(.js) #loader{display:none;}
 
-/* ---------- Nav ---------- */
 nav.pill{position:fixed; top:calc(14px + env(safe-area-inset-top,0px)); left:50%; transform:translateX(-50%); z-index:60; display:flex; align-items:center; gap:28px; background:rgba(255,255,255,.88); backdrop-filter:blur(12px); -webkit-backdrop-filter:blur(12px); border:1px solid var(--line); border-radius:16px; padding:8px 8px 8px 14px; box-shadow:0 8px 30px -12px rgba(0,0,0,.18); white-space:nowrap; transition:background .3s;}
 .logo{display:flex; align-items:center; gap:9px; font-family:'Inter Tight',sans-serif; font-weight:600; font-size:15px; cursor:pointer;}
 .logo i{width:26px; height:26px; border-radius:7px; background:var(--ink); display:grid; place-items:center; color:#fff; font-style:normal; font-size:13px;}
@@ -151,21 +149,9 @@ footer a{margin-left:18px; cursor:pointer;} footer a:hover{color:var(--ink);}
 a:focus-visible,.btn:focus-visible{outline:2px solid var(--ink); outline-offset:3px;}
 
 /* ============ SPA PAGE TRANSITIONS ============ */
-#page-home {
-  position: relative;
-}
-#page-home.page-enter {
-  animation: pageEnter .55s cubic-bezier(.2,.7,.2,1) both;
-}
-@keyframes pageEnter {
-  from { opacity: 0; }
-  to   { opacity: 1; }
-}
-
-/* Khi reset animation, tạm tắt mọi transition để reset tức thời */
-.no-anim, .no-anim *, .no-anim *::before, .no-anim *::after {
-  transition: none !important;
-}
+#page-home.page-enter { animation: pageEnter .55s cubic-bezier(.2,.7,.2,1) both; }
+@keyframes pageEnter { from{opacity:0} to{opacity:1} }
+.no-anim, .no-anim *, .no-anim *::before, .no-anim *::after { transition: none !important; }
 
 /* ============ LEGAL VIEW ============ */
 body.legal-view { background:#EFEDE8; }
@@ -372,6 +358,8 @@ body:not(.legal-view) #prog {
 <script>
 /* ============================================================
    ROUTER (SPA) — chuyển trang không reload, replay animation
+   - Anchor (#vi-sao...) → browser tự scroll, router không đụng
+   - Route (#/terms, #/privacy) → đổi page, scroll tức thì lên đầu
    ============================================================ */
 (function(){
   var pageHome    = document.getElementById('page-home');
@@ -390,7 +378,6 @@ body:not(.legal-view) #prog {
     document.documentElement.style.scrollBehavior = prev;
   }
 
-  /* Reset toàn bộ animation của trang chủ về trạng thái ban đầu */
   function resetHomeAnimations(){
     var targets = document.querySelectorAll('.split, .stg, .rv');
     document.body.classList.add('no-anim');
@@ -400,12 +387,10 @@ body:not(.legal-view) #prog {
       b.textContent = '0' + (b.dataset.suf || '');
       b.parentNode.classList.remove('pop');
     });
-    /* Force reflow → browser vẽ ngay trạng thái hidden */
     void document.body.offsetHeight;
     document.body.classList.remove('no-anim');
   }
 
-  /* Replay animation của trang chủ */
   function replayHomeAnimations(){
     setTimeout(function(){
       document.body.classList.add('ready');
@@ -418,43 +403,15 @@ body:not(.legal-view) #prog {
     }, 40);
   }
 
-  function route(){
-    var hash = location.hash || '#/';
-    var page = 'home';
-    if (hash === '#/terms')        page = 'terms';
-    else if (hash === '#/privacy') page = 'privacy';
-
-    var prevPage = document.body.dataset.page || null;
-    var isComingHome = (page === 'home' && prevPage && prevPage !== 'home');
-
-    /* 1) Chuẩn bị reset animation nếu quay về home */
-    if (isComingHome){
-      resetHomeAnimations();
-    }
-
-    /* 2) Đổi trang */
+  /* Ẩn/hiện các page + toggle body class */
+  function showPage(page){
     pageHome.hidden    = page !== 'home';
     pageTerms.hidden   = page !== 'terms';
     pagePrivacy.hidden = page !== 'privacy';
     document.body.classList.toggle('legal-view', page !== 'home');
+  }
 
-    /* 3) Fade-in trang home khi quay lại */
-    if (isComingHome){
-      pageHome.classList.remove('page-enter');
-      void pageHome.offsetHeight;
-      pageHome.classList.add('page-enter');
-    }
-
-    /* 4) Scroll tức thì lên đầu — chống nhấp nháy */
-    instantScrollTop();
-
-    /* 5) Replay animation sau khi DOM đã ổn định */
-    if (isComingHome){
-      replayHomeAnimations();
-      setTimeout(function(){ pageHome.classList.remove('page-enter'); }, 700);
-    }
-
-    /* 6) Highlight nav */
+  function updateLegalNav(page){
     if (page === 'terms'){
       homeLinks.forEach(function(a){ a.classList.remove('on'); });
       termsLink.classList.add('on');
@@ -466,31 +423,83 @@ body:not(.legal-view) #prog {
     } else {
       termsLink.classList.remove('on');
       privacyLink.classList.remove('on');
-      /* Home links để cho scroll handler tự xử lý */
       setTimeout(function(){ window.dispatchEvent(new Event('scroll')); }, 100);
     }
+  }
 
-    /* 7) Xử lý hash anchor (#vi-sao, #quy-trinh, #dich-vu) */
-    if (page === 'home' && hash.length > 1 && hash.charAt(1) !== '/'){
+  function route(){
+    var hash = location.hash || '#/';
+    var isAnchor = hash.length > 1 && hash.charAt(1) !== '/';
+    var prevPage = document.body.dataset.page || 'home';
+
+    /* ---------- TRƯỜNG HỢP ANCHOR (#vi-sao, #quy-trinh, #dich-vu) ---------- */
+    if (isAnchor){
       var id = hash.slice(1);
-      setTimeout(function(){
-        var el = document.getElementById(id);
-        if (el) el.scrollIntoView({behavior:'smooth', block:'start'});
-      }, isComingHome ? 200 : 60);
+
+      if (prevPage !== 'home'){
+        /* Đang ở legal → chuyển về home + animation */
+        resetHomeAnimations();
+        showPage('home');
+        pageHome.classList.remove('page-enter');
+        void pageHome.offsetHeight;
+        pageHome.classList.add('page-enter');
+        replayHomeAnimations();
+        setTimeout(function(){ pageHome.classList.remove('page-enter'); }, 700);
+
+        /* Đợi DOM home hiện xong rồi smooth scroll tới section */
+        setTimeout(function(){
+          var el = document.getElementById(id);
+          if (el) el.scrollIntoView({behavior:'smooth', block:'start'});
+        }, 100);
+      }
+      /* Nếu đang ở home → browser tự smooth scroll, KHÔNG can thiệp gì */
+
+      updateLegalNav('home');
+      document.body.dataset.page = 'home';
+      return;
     }
 
+    /* ---------- TRƯỜNG HỢP ROUTE HASH (#/, #/terms, #/privacy) ---------- */
+    var page = 'home';
+    if (hash === '#/terms')        page = 'terms';
+    else if (hash === '#/privacy') page = 'privacy';
+
+    var isPageChange = (page !== prevPage);
+    var isComingHome = (page === 'home' && prevPage !== 'home');
+
+    if (isComingHome) resetHomeAnimations();
+
+    showPage(page);
+
+    if (isComingHome){
+      pageHome.classList.remove('page-enter');
+      void pageHome.offsetHeight;
+      pageHome.classList.add('page-enter');
+    }
+
+    /* Scroll lên đầu khi đổi page, hoặc khi bấm "Trang chủ" từ home */
+    if (isPageChange){
+      instantScrollTop();
+    } else if (hash === '#/'){
+      window.scrollTo({top:0, behavior:'smooth'});
+    }
+
+    if (isComingHome){
+      replayHomeAnimations();
+      setTimeout(function(){ pageHome.classList.remove('page-enter'); }, 700);
+    }
+
+    updateLegalNav(page);
     document.body.dataset.page = page;
   }
 
   addEventListener('hashchange', route);
   route();
 
-  /* Nút "Về trang chủ" trong legal pages */
   document.querySelectorAll('[data-go-home]').forEach(function(b){
     b.addEventListener('click', function(){ location.hash = '#/'; });
   });
 
-  /* Click logo → trang chủ */
   document.querySelector('.logo').addEventListener('click', function(e){
     e.preventDefault();
     location.hash = '#/';
@@ -518,7 +527,7 @@ body:not(.legal-view) #prog {
   requestAnimationFrame(tick);
   var seen=0; setInterval(function(){ if(document.visibilityState==='visible'&&++seen>8) finish(); },1000);
 
-  /* Split text thành từng từ cho hiệu ứng reveal */
+  /* Split text thành từng từ */
   document.querySelectorAll('.split').forEach(function(el){
     var txt=el.textContent.trim().split(/\s+/);
     el.setAttribute('aria-label',el.textContent.trim());
@@ -526,7 +535,6 @@ body:not(.legal-view) #prog {
       return '<span class="w" aria-hidden="true"><i style="--i:'+i+'">'+w+'</i></span>';
     }).join(' ');
   });
-  /* Gán --i cho các con của .stg */
   document.querySelectorAll('.stg').forEach(function(g){
     Array.prototype.forEach.call(g.children,function(c,i){c.style.setProperty('--i',i);});
   });
@@ -536,7 +544,6 @@ body:not(.legal-view) #prog {
   },{threshold:.15});
   document.querySelectorAll('.rv,.split,.stg').forEach(function(x){io.observe(x);});
 
-  /* Đếm số — expose ra window để router có thể gọi lại */
   function countUp(el){
     var to=+el.dataset.to,suf=el.dataset.suf||'',t0=null,d=2200;
     function f(now){
@@ -556,7 +563,6 @@ body:not(.legal-view) #prog {
   },{threshold:.6});
   document.querySelectorAll('.stats b[data-to]').forEach(function(b){io2.observe(b);});
 
-  /* Nav highlight + progress bar + hero parallax */
   var navs=document.querySelectorAll('.links a[data-s]'),prog=document.getElementById('prog'),hw=document.getElementById('top');
   function onScroll(){
     if(document.body.classList.contains('legal-view')) return;
@@ -576,7 +582,6 @@ body:not(.legal-view) #prog {
   }
   addEventListener('scroll',onScroll,{passive:true}); onScroll();
 
-  /* 3D tilt cards */
   if(!reduce&&matchMedia('(hover:hover)').matches){
     document.querySelectorAll('.card').forEach(function(c){
       c.addEventListener('mousemove',function(e){
