@@ -7,7 +7,14 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@500;600;700&family=Inter:wght@400;500&family=Instrument+Serif:ital@1&family=Playfair+Display:wght@800&family=JetBrains+Mono:wght@400&display=swap" rel="stylesheet">
-<script>document.documentElement.classList.add('js','lock')</script>
+<script>
+document.documentElement.classList.add('js','lock');
+if('scrollRestoration' in history) history.scrollRestoration='manual';
+if(location.hash) history.replaceState(null,'',location.pathname+location.search);
+addEventListener('pageshow',function(){scrollTo(0,0);});
+addEventListener('load',function(){scrollTo(0,0);});
+scrollTo(0,0);
+</script>
 <style>
 :root{
   --bg:#EFEDE8; --paper:#FFFFFF; --ink:#0A0A0A; --muted:#6B6B66; --line:#DAD7D0;
@@ -21,7 +28,7 @@ h1,h2,h3{font-family:'Inter Tight',sans-serif; margin:0; letter-spacing:-.03em; 
 a{color:inherit; text-decoration:none;}
 .wrap{max-width:1040px; margin:0 auto; padding:0 24px; position:relative; z-index:2;}
 
-#stage{position:absolute; top:0; left:0; width:100%; height:100svh; z-index:1; overflow:hidden; border-radius:0 0 36px 36px; pointer-events:none;}
+#stage{position:absolute; top:0; left:0; width:100%; height:100svh; z-index:1; overflow:hidden; pointer-events:none;}
 #stage canvas{width:100%!important; height:100%!important; display:block;}
 
 #loader{position:fixed; inset:0; z-index:200; background:#07080A; color:#EDE8DC; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; transition:opacity .9s ease, visibility .9s;}
@@ -44,12 +51,16 @@ a{color:inherit; text-decoration:none;}
   #loader .dots{margin-bottom:34px;}
 }
 html.lock{overflow:hidden;}
+html:not(.js) #loader{display:none;}
 
 nav.pill{position:fixed; top:calc(14px + env(safe-area-inset-top,0px)); left:50%; transform:translateX(-50%); z-index:60; display:flex; align-items:center; gap:28px; background:rgba(255,255,255,.88); backdrop-filter:blur(12px); border:1px solid var(--line); border-radius:16px; padding:8px 8px 8px 14px; box-shadow:0 8px 30px -12px rgba(0,0,0,.18); white-space:nowrap;}
 .logo{display:flex; align-items:center; gap:9px; font-family:'Inter Tight',sans-serif; font-weight:600; font-size:15px;}
 .logo i{width:26px; height:26px; border-radius:7px; background:var(--ink); display:grid; place-items:center; color:#fff; font-style:normal; font-size:13px;}
-.links{display:flex; gap:22px; font-size:13px; color:#33332f;}
-.links a:hover{color:var(--muted);}
+.links{display:flex; gap:2px; font-size:13px; color:#33332f;}
+.links a{padding:8px 14px; border-radius:10px; transition:background .3s ease, color .3s ease;}
+.links a:hover{background:#ECEAE4;}
+.links a.on{background:var(--ink); color:#fff;}
+#prog{position:fixed; top:0; left:0; right:0; height:3px; background:#fff; mix-blend-mode:difference; transform:scaleX(0); transform-origin:left; z-index:90;}
 .btn{display:inline-flex; align-items:center; gap:8px; padding:10px 18px; border-radius:11px; background:var(--ink); color:#fff; font-size:13px; font-weight:500; transition:transform .2s, box-shadow .2s;}
 .btn:hover{transform:translateY(-2px); box-shadow:0 0 0 3px rgba(10,10,10,.12);}
 .btn.light{background:#fff; color:var(--ink);}
@@ -62,7 +73,7 @@ nav.pill{position:fixed; top:calc(14px + env(safe-area-inset-top,0px)); left:50%
 .row{display:flex; gap:12px; flex-wrap:wrap;}
 
 body{position:relative;}
-#hero-bg{position:absolute; top:0; left:0; right:0; height:100svh; background:#16171A; border-radius:0 0 36px 36px; z-index:0;}
+#hero-bg{position:absolute; top:0; left:0; right:0; height:100svh; background:#16171A; z-index:0;}
 #hero .badge{background:#24262B; border-color:#383B42; color:#D9DBE1;}
 #hero .btn{background:#fff; color:#111;}
 #hero .btn.line{background:transparent; color:#fff; border:1px solid #fff;}
@@ -70,6 +81,27 @@ body{position:relative;}
 html.js .hi{opacity:0; transform:translateY(34px); transition:opacity .9s ease var(--d,0s), transform .9s cubic-bezier(.2,.7,.2,1) var(--d,0s);}
 body.ready .hi{opacity:1; transform:none;}
 @media(prefers-reduced-motion:reduce){html.js .hi{transform:none;}}
+
+.split .w{display:inline-block; overflow:hidden; vertical-align:top; padding:.15em 0 .12em; margin:-.15em 0 -.12em;}
+.split .w>i{display:inline-block; font-style:inherit; transform:translateY(112%); transition:transform .95s cubic-bezier(.2,.7,.2,1) calc(var(--i,0)*55ms);}
+.split.in .w>i{transform:none;}
+html.js .stg>*{opacity:0; translate:0 38px; transition:opacity .8s ease calc(var(--i,0)*90ms), translate .9s cubic-bezier(.2,.7,.2,1) calc(var(--i,0)*90ms);}
+html.js .stg.in>*{opacity:1; translate:0 0;}
+.card{transform:perspective(800px) rotateX(var(--rx,0deg)) rotateY(var(--ry,0deg));}
+html.js .stg>.card{transition:opacity .8s ease calc(var(--i,0)*90ms), translate .9s cubic-bezier(.2,.7,.2,1) calc(var(--i,0)*90ms), transform .25s ease-out, box-shadow .3s ease;}
+.card:hover{box-shadow:0 24px 44px -22px rgba(0,0,0,.28);}
+.stats>div{text-align:center;}
+.stats b{font-variant-numeric:tabular-nums;}
+.stats>div::after{content:""; display:block; height:2px; background:var(--ink); width:0; margin:14px auto 0; transition:width 2s cubic-bezier(.2,.7,.2,1) .3s;}
+.stats.in>div::after{width:56px;}
+.stats>div.pop b{animation:pop .7s ease;}
+@keyframes pop{35%{transform:scale(1.14); text-shadow:0 0 28px rgba(10,10,10,.28);} 100%{transform:none;}}
+@media(prefers-reduced-motion:reduce){
+  .rv{transform:translateY(12px); transition-duration:.6s;}
+  html.js .stg>*{translate:0 12px;}
+  .split .w>i{transform:none; opacity:0; transition:opacity .8s ease;}
+  .split.in .w>i{opacity:1;}
+}
 section.block{padding:120px 0; position:relative; z-index:2;}
 .center{text-align:center;}
 .center h2{font-size:clamp(30px,5vw,56px); max-width:760px; margin:0 auto;}
@@ -86,8 +118,8 @@ section.block{padding:120px 0; position:relative; z-index:2;}
 .table .r div:first-child{color:var(--muted);}
 
 .steps{display:grid; grid-template-columns:repeat(4,1fr); gap:14px; max-width:1000px; margin:56px auto 0;}
-.card{background:var(--paper); border:1px solid var(--line); border-radius:22px; padding:26px 22px; min-height:220px; display:flex; flex-direction:column; justify-content:space-between;}
-.card b{font-family:'Inter Tight',sans-serif; font-size:13px; color:var(--muted); font-weight:500;}
+.card{background:var(--paper); border:1px solid var(--line); border-radius:22px; padding:26px 22px; min-height:220px; display:block;}
+.card b{display:block; margin-bottom:64px; font-family:'Inter Tight',sans-serif; font-size:13px; color:var(--muted); font-weight:500;}
 .card h3{font-size:22px; margin-bottom:8px;}
 .card p{font-size:14px; line-height:1.55; color:var(--muted); margin:0;}
 
@@ -116,7 +148,6 @@ footer a{margin-left:18px;} footer a:hover{color:var(--ink);}
   .dock span em{display:none;}
 }
 @media(max-width:520px){.steps{grid-template-columns:1fr;} .table .r div,.table .head div{padding:16px;}}
-@media(prefers-reduced-motion:reduce){.rv{opacity:1;transform:none;transition:none;}}
 a:focus-visible,.btn:focus-visible{outline:2px solid var(--ink); outline-offset:3px;}
 </style>
 </head>
@@ -129,12 +160,13 @@ a:focus-visible,.btn:focus-visible{outline:2px solid var(--ink); outline-offset:
   <div class="track"><u id="bar"></u></div>
   <div class="pc"><span id="count">0</span>%</div>
 </div>
+<div id="prog"></div>
 <div id="hero-bg"></div>
 <div id="stage"></div>
 
 <nav class="pill">
   <a class="logo" href="#top"><i>T</i>Trust Chain</a>
-  <div class="links"><a href="#vi-sao">Vì sao</a><a href="#quy-trinh">Quy trình</a><a href="#dich-vu">Dịch vụ</a><a href="https://claude.ai/artifact/S1Dm8opcVZYnNGgpq4VCWK" target="_blank" rel="noopener">Điều khoản</a><a href="https://claude.ai/artifact/XDj9XqAVUEVU7YhUrheJbz" target="_blank" rel="noopener">Bảo mật</a></div>
+  <div class="links"><a href="#top" data-s="hero">Trang chủ</a><a href="#vi-sao" data-s="vi-sao">Vì sao</a><a href="#quy-trinh" data-s="quy-trinh">Quy trình</a><a href="#dich-vu" data-s="dich-vu">Dịch vụ</a><a href="terms.html">Điều khoản</a><a href="privacy.html">Bảo mật</a></div>
   <a class="btn" href="https://discord.gg/q6YKpc6FX3" target="_blank" rel="noopener">Vào Discord</a>
 </nav>
 
@@ -149,46 +181,46 @@ a:focus-visible,.btn:focus-visible{outline:2px solid var(--ink); outline-offset:
 </div></section>
 
 <section class="block" id="vi-sao"><div class="wrap">
-  <p class="quote rv">“Tôi không biết người kia, và họ cũng không biết tôi. Ai chuyển trước?”</p>
+  <p class="quote split">“Tôi không biết người kia, và họ cũng không biết tôi. Ai chuyển trước?”</p>
   <div class="center rv" style="margin-top:40px"><p>Đó là lý do trung gian tồn tại. Một bên thứ ba cầm tiền hoặc tài khoản cho đến khi cả hai hài lòng.</p></div>
 </div></section>
 
 <section class="block" id="quy-trinh"><div class="wrap center">
   <div class="badge rv">Quy trình</div>
-  <h2 class="rv">Bốn bước, từ ticket đến bàn giao.</h2>
-  <div class="steps rv" style="text-align:left">
-    <div class="card"><b>01</b><div><h3>Tạo ticket</h3><p>Chọn Thuê hoặc Trade Đồ, chọn đối phương. Họ xác nhận trước khi ticket mở.</p></div></div>
-    <div class="card"><b>02</b><div><h3>Chốt thông tin</h3><p>Thống nhất giá, cách thanh toán và ai chịu phí trung gian.</p></div></div>
-    <div class="card"><b>03</b><div><h3>Giữ tiền / hàng</h3><p>Staff xác nhận đã nhận trước khi báo bên kia tiến hành.</p></div></div>
-    <div class="card"><b>04</b><div><h3>Bàn giao</h3><p>Bên nhận kiểm tra, xác nhận ổn. Staff giải ngân và đóng ticket.</p></div></div>
+  <h2 class="split">Bốn bước, từ ticket đến bàn giao.</h2>
+  <div class="steps stg" style="text-align:left">
+    <div class="card"><b>01</b><h3>Tạo ticket</h3><p>Chọn Thuê hoặc Trade Đồ, chọn đối phương. Họ xác nhận trước khi ticket mở.</p></div>
+    <div class="card"><b>02</b><h3>Chốt thông tin</h3><p>Thống nhất giá, cách thanh toán và ai chịu phí trung gian.</p></div>
+    <div class="card"><b>03</b><h3>Giữ tiền / hàng</h3><p>Staff xác nhận đã nhận trước khi báo bên kia tiến hành.</p></div>
+    <div class="card"><b>04</b><h3>Bàn giao</h3><p>Bên nhận kiểm tra, xác nhận ổn. Staff giải ngân và đóng ticket.</p></div>
   </div>
 </div></section>
 
 <section class="block" id="dich-vu"><div class="wrap center">
   <div class="badge rv">Dịch vụ</div>
-  <h2 class="rv">Hai hình thức, chọn đúng cái bạn cần.</h2>
-  <div class="table rv" style="text-align:left">
+  <h2 class="split">Hai hình thức, chọn đúng cái bạn cần.</h2>
+  <div class="table stg" style="text-align:left">
     <div class="head"><div>Thuê trung gian</div><div>Trade Đồ</div></div>
     <div class="r"><div>Một bên trả tiền, bên kia giao hàng hoặc dịch vụ.</div><div>Acc game đổi acc game, không trade lấy tiền mặt.</div></div>
     <div class="r"><div>Tiền được giữ cho đến khi bên mua xác nhận đủ.</div><div>Trade vào acc trung gian, hoặc để staff đăng nhập hộ.</div></div>
     <div class="r"><div>Phí 15% trên giá trị giao dịch.</div><div>Ưu tiên acc trung gian để không phải đưa mật khẩu.</div></div>
   </div>
-  <div class="stats rv">
-    <div><b>15%</b><span>phí trung gian</span></div>
-    <div><b>2</b><span>ticket riêng, mỗi bên một kênh</span></div>
-    <div><b>24h</b><span>tự đóng nếu không hoạt động</span></div>
+  <div class="stats stg">
+    <div><b data-to="15" data-suf="%">0%</b><span>phí trung gian</span></div>
+    <div><b data-to="2" data-suf="">0</b><span>ticket riêng, mỗi bên một kênh</span></div>
+    <div><b data-to="24" data-suf="h">0h</b><span>tự đóng nếu không hoạt động</span></div>
   </div>
 </div></section>
 
 <section class="block"><div class="wrap"><div class="dark rv">
-  <h2>Sẵn sàng giao dịch an toàn hơn?</h2>
+  <h2 class="split">Sẵn sàng giao dịch an toàn hơn?</h2>
   <p>Vào server, bấm Thuê hoặc Trade Đồ trong kênh ticket để bắt đầu.</p>
   <a class="btn light" href="https://discord.gg/q6YKpc6FX3" target="_blank" rel="noopener">Tham gia Trust Chain →</a>
 </div></div></section>
 
 <footer><div class="wrap">
   <span>© Trust Chain · Owner nityx02</span>
-  <span><a href="https://claude.ai/artifact/S1Dm8opcVZYnNGgpq4VCWK" target="_blank" rel="noopener">Điều khoản</a><a href="https://claude.ai/artifact/XDj9XqAVUEVU7YhUrheJbz" target="_blank" rel="noopener">Bảo mật</a><a href="https://discord.gg/q6YKpc6FX3" target="_blank" rel="noopener">Discord</a></span>
+  <span><a href="terms.html">Điều khoản</a><a href="privacy.html">Bảo mật</a><a href="https://discord.gg/q6YKpc6FX3" target="_blank" rel="noopener">Discord</a></span>
 </div></footer>
 
 <div class="dock"><span>Bắt đầu từ một ticket.<em>Phí 15%</em></span><a class="btn" href="https://discord.gg/q6YKpc6FX3" target="_blank" rel="noopener">Vào Discord →</a></div>
@@ -203,20 +235,61 @@ a:focus-visible,.btn:focus-visible{outline:2px solid var(--ink); outline-offset:
     ld.classList.add('done'); document.documentElement.classList.remove('lock');
     setTimeout(function(){document.body.classList.add('ready');},500);
   }
-  var dur=6000,t0=null;
+  var dur=2000+Math.random()*2000,t0=document.visibilityState==='visible'?performance.now():null;
   function tick(now){
     if(t0===null)t0=now;
     var u=dur?Math.min(1,(now-t0)/dur):1,n=Math.round(u*100);
     cnt.textContent=n; bar.style.width=n+'%';
-    if(u<1) requestAnimationFrame(tick); else setTimeout(finish,700);
+    if(u<1) requestAnimationFrame(tick); else setTimeout(finish,400);
   }
   requestAnimationFrame(tick);
-  var seen=0; setInterval(function(){ if(document.visibilityState==='visible'&&++seen>14) finish(); },1000);
+  var seen=0; setInterval(function(){ if(document.visibilityState==='visible'&&++seen>8) finish(); },1000);
 
   var io=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting)e.target.classList.add('in');});},{threshold:.15});
-  document.querySelectorAll('.rv').forEach(function(x){io.observe(x);});
+  document.querySelectorAll('.split').forEach(function(el){
+    var txt=el.textContent.trim().split(/\s+/); el.setAttribute('aria-label',el.textContent.trim());
+    el.innerHTML=txt.map(function(w,i){return '<span class="w" aria-hidden="true"><i style="--i:'+i+'">'+w+'</i></span>';}).join(' ');
+  });
+  document.querySelectorAll('.stg').forEach(function(g){
+    Array.prototype.forEach.call(g.children,function(c,i){c.style.setProperty('--i',i);});
+  });
+  document.querySelectorAll('.rv,.split,.stg').forEach(function(x){io.observe(x);});
 
-  try{ init3D(); }catch(err){ console.error('3D init failed',err); }
+  /* count-up numbers */
+  function countUp(el){
+    var to=+el.dataset.to,suf=el.dataset.suf||'',t0=null,d=2200;
+    function f(now){
+      if(t0===null)t0=now;
+      var u=Math.min(1,(now-t0)/d),e=u===1?1:1-Math.pow(2,-10*u);
+      el.textContent=Math.round(to*e)+suf;
+      if(u<1) requestAnimationFrame(f); else el.parentNode.classList.add('pop');
+    }
+    requestAnimationFrame(f);
+  }
+  var io2=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){io2.unobserve(e.target);countUp(e.target);}});},{threshold:.6});
+  document.querySelectorAll('.stats b[data-to]').forEach(function(b){io2.observe(b);});
+
+  /* nav highlight follows the section on screen + progress bar + hero parallax */
+  var navs=document.querySelectorAll('.links a[data-s]'),prog=document.getElementById('prog'),hw=document.getElementById('top');
+  function onScroll(){
+    var y=innerHeight*.45,cur='hero';
+    ['hero','vi-sao','quy-trinh','dich-vu'].forEach(function(id){var e=document.getElementById(id);if(e&&e.getBoundingClientRect().top<=y)cur=id;});
+    navs.forEach(function(a){a.classList.toggle('on',a.dataset.s===cur);});
+    var m=document.documentElement.scrollHeight-innerHeight;
+    prog.style.transform='scaleX('+(m>0?Math.min(1,scrollY/m):0)+')';
+    if(!reduce){var k=Math.min(1,scrollY/innerHeight);hw.style.transform='translateY('+(scrollY*.18)+'px)';hw.style.opacity=Math.max(0,1-k*1.1);}
+  }
+  addEventListener('scroll',onScroll,{passive:true}); onScroll();
+
+  /* 3D tilt on the step cards */
+  if(!reduce&&matchMedia('(hover:hover)').matches){
+    document.querySelectorAll('.card').forEach(function(c){
+      c.addEventListener('mousemove',function(e){var b=c.getBoundingClientRect(),x=(e.clientX-b.left)/b.width-.5,y=(e.clientY-b.top)/b.height-.5;c.style.setProperty('--ry',(x*10)+'deg');c.style.setProperty('--rx',(-y*10)+'deg');});
+      c.addEventListener('mouseleave',function(){c.style.setProperty('--rx','0deg');c.style.setProperty('--ry','0deg');});
+    });
+  }
+
+  requestAnimationFrame(function(){requestAnimationFrame(function(){ try{ init3D(); }catch(err){ console.error('3D init failed',err); } });});
 
   function init3D(){
     if(!window.THREE) return;
