@@ -2,12 +2,11 @@
    TRUST CHAIN — SHARED MUSIC PLAYER
    - Autoplay muted → unmute on first gesture
    - Thanh âm lượng: 0 → 200 (mặc định 100)
-   - Chuyển bài tuần tự
+   - Chuyển bài tuần tự, mobile-friendly
    ========================================================== */
 (function(){
   'use strict';
 
-  /* ====== DANH SÁCH NHẠC ====== */
   var songs = [
     { src: 'music/君との夏はソーダ味.mp3', title: '君との夏はソーダ味', artist: 'Unknown' },
     { src: 'music/サブカルに恋して.mp3',   title: 'サブカルに恋して',   artist: 'Unknown' },
@@ -18,7 +17,6 @@
 
   var VOL_MIN = 0, VOL_MAX = 200, VOL_DEFAULT = 100;
 
-  /* ====== STATE ====== */
   var KEY = 'tc_music_v2';
   var saved = {};
   try { saved = JSON.parse(sessionStorage.getItem(KEY) || '{}'); } catch(e){ saved = {}; }
@@ -38,10 +36,10 @@
   }
   savedVolume200 = Math.max(VOL_MIN, Math.min(VOL_MAX, savedVolume200));
 
-  /* ====== CSS ====== */
   var CSS = `
-  #music-toggle{position:fixed;bottom:calc(24px + env(safe-area-inset-bottom,0px));right:24px;z-index:100;width:48px;height:48px;border-radius:50%;background:rgba(30,30,30,.85);color:#fff;border:1px solid rgba(255,255,255,.2);cursor:pointer;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);transition:transform .3s ease,background .3s ease;box-shadow:0 8px 30px -12px rgba(0,0,0,.4)}
+  #music-toggle{position:fixed;bottom:calc(24px + env(safe-area-inset-bottom,0px));right:24px;z-index:100;width:48px;height:48px;border-radius:50%;background:rgba(30,30,30,.85);color:#fff;border:1px solid rgba(255,255,255,.2);cursor:pointer;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);transition:transform .3s ease,background .3s ease;box-shadow:0 8px 30px -12px rgba(0,0,0,.4);padding:0;-webkit-tap-highlight-color:transparent}
   #music-toggle:hover{transform:scale(1.1);background:rgba(50,50,50,.9)}
+  #music-toggle:active{transform:scale(.95)}
   #music-toggle svg{width:20px;height:20px;fill:currentColor}
   #music-player{position:fixed;bottom:calc(84px + env(safe-area-inset-bottom,0px));right:24px;z-index:100;width:340px;background:rgba(30,30,30,.85);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border:1px solid rgba(255,255,255,.1);border-radius:24px;padding:16px;color:#fff;font-family:'Inter',system-ui,sans-serif;box-shadow:0 12px 40px -10px rgba(0,0,0,.5);transition:opacity .3s ease,transform .3s ease,visibility .3s;opacity:0;visibility:hidden;transform:translateY(20px)}
   #music-player.show{opacity:1;visibility:visible;transform:translateY(0)}
@@ -57,31 +55,36 @@
   .mp-visualizer span:nth-child(4){height:20px;animation-delay:.1s}
   @keyframes mp-vis{0%{height:4px}100%{height:20px}}
   .mp-progress-wrap{display:flex;align-items:center;gap:10px;font-size:11px;color:#B0B0B0;margin-bottom:16px;font-variant-numeric:tabular-nums}
-  .mp-progress-bar{flex:1;height:4px;background:rgba(255,255,255,.15);border-radius:2px;position:relative;cursor:pointer}
-  .mp-progress{height:100%;background:#fff;border-radius:2px;width:0%;position:relative;transition:width .1s linear}
-  .mp-progress::after{content:'';position:absolute;right:-4px;top:-3px;width:10px;height:10px;background:#fff;border-radius:50%;opacity:0;transition:opacity .2s}
+  .mp-progress-bar{flex:1;height:4px;background:rgba(255,255,255,.15);border-radius:2px;position:relative;cursor:pointer;padding:8px 0;margin:-8px 0;box-sizing:content-box}
+  .mp-progress{height:4px;background:#fff;border-radius:2px;width:0%;position:relative;transition:width .1s linear;pointer-events:none}
+  .mp-progress::after{content:'';position:absolute;right:-5px;top:-4px;width:12px;height:12px;background:#fff;border-radius:50%;opacity:0;transition:opacity .2s}
   .mp-progress-bar:hover .mp-progress::after{opacity:1}
   .mp-volume-row{max-height:0;overflow:hidden;opacity:0;display:flex;align-items:center;gap:10px;font-size:11px;color:#B0B0B0;margin:0;transition:max-height .35s ease,opacity .25s ease,margin .35s ease;font-variant-numeric:tabular-nums}
   #music-player.volume-open .mp-volume-row{max-height:40px;opacity:1;margin-bottom:16px}
   .mp-volume-row svg{width:14px;height:14px;fill:#B0B0B0;flex-shrink:0}
-  .mp-volume-bar{flex:1;height:4px;background:rgba(255,255,255,.15);border-radius:2px;position:relative;cursor:pointer}
-  .mp-volume-fill{height:100%;background:#fff;border-radius:2px;width:50%;position:relative;transition:width .1s linear}
-  .mp-volume-fill::after{content:'';position:absolute;right:-4px;top:-3px;width:10px;height:10px;background:#fff;border-radius:50%;opacity:0;transition:opacity .2s}
+  .mp-volume-bar{flex:1;height:4px;background:rgba(255,255,255,.15);border-radius:2px;position:relative;cursor:pointer;padding:8px 0;margin:-8px 0;box-sizing:content-box}
+  .mp-volume-fill{height:4px;background:#fff;border-radius:2px;width:50%;position:relative;transition:width .1s linear;pointer-events:none}
+  .mp-volume-fill::after{content:'';position:absolute;right:-5px;top:-4px;width:12px;height:12px;background:#fff;border-radius:50%;opacity:0;transition:opacity .2s}
   .mp-volume-bar:hover .mp-volume-fill::after{opacity:1}
   .mp-volume-val{min-width:32px;text-align:right}
   .mp-controls{display:flex;justify-content:space-between;align-items:center;padding:0 8px}
-  .mp-btn{background:none;border:none;color:#fff;cursor:pointer;padding:8px;display:flex;align-items:center;justify-content:center;opacity:.7;transition:opacity .2s,transform .2s}
+  .mp-btn{background:none;border:none;color:#fff;cursor:pointer;padding:8px;display:flex;align-items:center;justify-content:center;opacity:.7;transition:opacity .2s,transform .2s;-webkit-tap-highlight-color:transparent}
   .mp-btn:hover{opacity:1;transform:scale(1.1)}
+  .mp-btn:active{transform:scale(.9);opacity:1}
   .mp-btn svg{width:20px;height:20px;fill:currentColor}
   .mp-btn.play-pause svg{width:28px;height:28px}
   .mp-btn.active{opacity:1;filter:drop-shadow(0 0 6px rgba(255,255,255,.6))}
   @media(max-width:520px){
-    #music-player{width:calc(100vw - 48px);right:24px;bottom:calc(90px + env(safe-area-inset-bottom,0px))}
-    #music-toggle{bottom:calc(24px + env(safe-area-inset-bottom,0px));right:24px}
+    #music-toggle{bottom:calc(80px + env(safe-area-inset-bottom,0px));right:14px;width:44px;height:44px}
+    #music-player{width:calc(100vw - 28px);right:14px;bottom:calc(136px + env(safe-area-inset-bottom,0px));padding:14px;border-radius:20px}
+    .mp-title{font-size:14px}
+    .mp-artist{font-size:11px}
+    .mp-btn svg{width:18px;height:18px}
+    .mp-btn.play-pause svg{width:26px;height:26px}
+    .mp-controls{padding:0 4px}
   }
   `;
 
-  /* ====== HTML ====== */
   var HTML = `
   <button id="music-toggle" aria-label="Bật/tắt trình phát nhạc">
     <svg viewBox="0 0 24 24"><path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/></svg>
@@ -278,25 +281,36 @@
       updateVolumeUI();
     });
 
+    /* ===== THANH VOLUME — hỗ trợ chuột + cảm ứng ===== */
     var volDragging = false;
     function setVolFromEvent(e){
       var rect = volumeBar.getBoundingClientRect();
-      var x = (e.touches ? e.touches[0].clientX : e.clientX) - rect.left;
-      var ratio = Math.max(0, Math.min(1, x / rect.width));
+      var clientX = e.touches ? e.touches[0].clientX : e.clientX;
+      var ratio = Math.max(0, Math.min(1, (clientX - rect.left) / rect.width));
       setVolume200(ratio * VOL_MAX);
     }
     volumeBar.addEventListener('mousedown', function(e){ volDragging = true; setVolFromEvent(e); e.preventDefault(); });
     document.addEventListener('mousemove', function(e){ if(volDragging) setVolFromEvent(e); });
     document.addEventListener('mouseup',   function(){ volDragging = false; });
-    volumeBar.addEventListener('touchstart', function(e){ setVolFromEvent(e); e.preventDefault(); }, {passive:false});
-    volumeBar.addEventListener('touchmove',  function(e){ setVolFromEvent(e); e.preventDefault(); }, {passive:false});
+    volumeBar.addEventListener('touchstart', function(e){ volDragging = true; setVolFromEvent(e); e.preventDefault(); }, {passive:false});
+    volumeBar.addEventListener('touchmove',  function(e){ if(volDragging) setVolFromEvent(e); e.preventDefault(); }, {passive:false});
+    volumeBar.addEventListener('touchend',   function(){ volDragging = false; });
 
-    progressBar.addEventListener('click', function(e){
+    /* ===== THANH TIẾN TRÌNH — hỗ trợ chuột + cảm ứng ===== */
+    var seekDragging = false;
+    function seekFromEvent(e){
       if(!audio.duration) return;
       var rect = progressBar.getBoundingClientRect();
-      var pos = (e.clientX - rect.left) / rect.width;
+      var clientX = e.touches ? e.touches[0].clientX : e.clientX;
+      var pos = Math.max(0, Math.min(1, (clientX - rect.left) / rect.width));
       audio.currentTime = pos * audio.duration;
-    });
+    }
+    progressBar.addEventListener('mousedown', function(e){ seekDragging = true; seekFromEvent(e); e.preventDefault(); });
+    document.addEventListener('mousemove', function(e){ if(seekDragging) seekFromEvent(e); });
+    document.addEventListener('mouseup',   function(){ seekDragging = false; });
+    progressBar.addEventListener('touchstart', function(e){ seekDragging = true; seekFromEvent(e); e.preventDefault(); }, {passive:false});
+    progressBar.addEventListener('touchmove',  function(e){ if(seekDragging) seekFromEvent(e); e.preventDefault(); }, {passive:false});
+    progressBar.addEventListener('touchend',   function(){ seekDragging = false; });
 
     audio.addEventListener('timeupdate', function(){
       if(audio.duration){
@@ -331,9 +345,9 @@
     updateVolumeUI();
 
     /* =============================================================
-       AUTOPLAY: gọi nhiều lần nhưng có guard `isPlaying`
+       AUTOPLAY — kỹ thuật muted → unmute on first gesture
        ============================================================= */
-    var GESTURE_EVENTS = ['click','touchstart','keydown','pointerdown'];
+    var GESTURE_EVENTS = ['click','touchstart','keydown','pointerdown','touchend'];
 
     function armUnmute(){
       function unmute(){
@@ -360,10 +374,7 @@
     }
 
     function attemptPlay(){
-      /* Chặn gọi lại khi đang phát */
       if (isPlaying) return;
-
-      /* Bước 1: thử phát có tiếng */
       audio.muted = false;
       var p = audio.play();
       if (!p || !p.then) return;
@@ -374,7 +385,6 @@
         visualizer.style.opacity = '1';
         saveState();
       }).catch(function(){
-        /* Bước 2: bị chặn → phát muted (luôn được phép) */
         audio.muted = true;
         var pp = audio.play();
         if (!pp || !pp.then) return;
@@ -384,10 +394,8 @@
           updateVolumeUI();
           visualizer.style.opacity = '1';
           saveState();
-          /* Chờ user gesture → unmute */
           armUnmute();
         }).catch(function(){
-          /* Cả 2 đều fail → chờ user gesture để thử lại */
           isPlaying = false;
           updatePlayIcon();
           armRetryPlay();
@@ -410,7 +418,6 @@
       mo.observe(loader, { attributes: true, attributeFilter: ['class'] });
     }
 
-    /* Khi user bấm nút Play trên UI mà audio đang paused → phát */
     document.addEventListener('visibilitychange', function(){
       if (document.visibilityState === 'visible' && !isPlaying && wantResume){
         attemptPlay();
