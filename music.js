@@ -9,9 +9,9 @@
      Thêm/xóa bài tùy ý. Đường dẫn tính từ file HTML.
      Hỗ trợ: .mp3, .m4a, .ogg, .wav, .mp4 (chỉ lấy âm thanh) */
   var songs = [
-    { src: 'music/bai-hat-1.mp3', title: 'Bài hát 1', artist: 'Nghệ sĩ 1' },
-    { src: 'music/bai-hat-2.mp3', title: 'Bài hát 2', artist: 'Nghệ sĩ 2' },
-    { src: 'music/bai-hat-3.mp3', title: 'Bài hát 3', artist: 'Nghệ sĩ 3' }
+    { src: '君との夏はソーダ味.mp3', title: '君との夏はソーダ味', artist: 'Unknkow' },
+    { src: 'サブカルに恋して.mp3', title: 'サブカルに恋して', artist: 'Unknow' },
+    { src: 'だらけモードON.mp3', title: 'だらけモードON', artist: 'Unknow' }
   ];
 
   if(!songs.length) return;
