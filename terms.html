@@ -6,7 +6,15 @@
 <title>Điều khoản — Trust Chain</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@500;600;700&family=Inter:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@500;600;700&family=Inter:wght@400;500&family=Playfair+Display:wght@800&family=JetBrains+Mono:wght@400&display=swap" rel="stylesheet">
+<script>
+document.documentElement.classList.add('js','lock');
+if('scrollRestoration' in history) history.scrollRestoration='manual';
+if(location.hash) history.replaceState(null,'',location.pathname+location.search);
+addEventListener('pageshow',function(){scrollTo(0,0);});
+addEventListener('load',function(){scrollTo(0,0);});
+scrollTo(0,0);
+</script>
 <style>
 :root{--bg:#EFEDE8;--paper:#fff;--ink:#0A0A0A;--muted:#6B6B66;--line:#DAD7D0;color-scheme:light;box-sizing:border-box;
   padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);}
@@ -32,9 +40,38 @@ code{background:#F4F2ED;border-radius:6px;padding:1px 6px;font-size:13.5px;}
 .notice{background:var(--ink);color:#fff;border-radius:16px;padding:18px 22px;margin:0 0 14px;font-size:14.5px;line-height:1.65;}
 .notice strong{color:#fff;}
 @media(max-width:520px){.sec{padding:22px 20px 14px;}}
+#loader{position:fixed; inset:0; z-index:200; background:#07080A; color:#EDE8DC; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; transition:opacity .9s ease, visibility .9s;}
+#loader.done{opacity:0; visibility:hidden;}
+#loader .dots{display:flex; gap:22px; margin-bottom:46px;}
+#loader .dots i{width:9px; height:9px; border-radius:50%; background:#fff; box-shadow:0 0 14px 3px rgba(255,255,255,.55); animation:pulse 1.3s ease-in-out infinite;}
+#loader .dots i:nth-child(2){animation-delay:.22s;} #loader .dots i:nth-child(3){animation-delay:.44s;}
+@keyframes pulse{0%,100%{opacity:.25; transform:scale(.7);} 50%{opacity:1; transform:scale(1.25);}}
+#loader .wm{display:flex; align-items:flex-end; gap:14px; padding:0 20px;}
+#loader .wm b{font-family:'Playfair Display',Georgia,serif; font-weight:800; font-size:clamp(40px,7vw,64px); line-height:.9; letter-spacing:-.01em;}
+#loader .wm small{font-family:'JetBrains Mono',ui-monospace,monospace; font-size:12px; letter-spacing:.3em; color:#9A968C; padding-bottom:6px;}
+#loader .cap{font-family:'JetBrains Mono',ui-monospace,monospace; font-size:12px; letter-spacing:.28em; color:#B9B5AA; margin-top:26px; padding:0 20px;}
+#loader .track{width:min(300px,70vw); height:2px; background:rgba(255,255,255,.12); margin-top:30px; overflow:hidden;}
+#loader .track u{display:block; height:100%; width:0; background:#EDE8DC;}
+#loader .pc{font-family:'JetBrains Mono',ui-monospace,monospace; font-size:11px; letter-spacing:.2em; color:#6E6B63; margin-top:12px;}
+@media(max-width:560px){
+  #loader .wm{flex-direction:column; align-items:center; gap:12px;}
+  #loader .wm small{padding-bottom:0;}
+  #loader .cap{font-size:10.5px; letter-spacing:.16em; line-height:1.9; margin-top:22px;}
+  #loader .dots{margin-bottom:34px;}
+}
+html.lock{overflow:hidden;}
+html:not(.js) #loader{display:none;}
 </style>
 </head>
 <body>
+<div id="loader">
+  <div class="dots" aria-hidden="true"><i></i><i></i><i></i></div>
+  <div class="wm"><b>TRUST CHAIN</b><small>MIDDLEMAN</small></div>
+  <div class="cap">ĐANG ĐỒNG BỘ HỆ THỐNG — VUI LÒNG CHỜ</div>
+  <div class="track"><u id="bar"></u></div>
+  <div class="pc"><span id="count">0</span>%</div>
+</div>
+
 <header><div class="wrap">
   <div class="brand">Trust Chain</div>
   <a class="back" href="index.html">← Trang chủ</a>
@@ -75,5 +112,20 @@ code{background:#F4F2ED;border-radius:6px;padding:1px 6px;font-size:13.5px;}
 
 </div>
 </div>
+<script>
+(function(){
+  var ld=document.getElementById('loader'),cnt=document.getElementById('count'),bar=document.getElementById('bar');
+  function finish(){ if(ld.classList.contains('done'))return; ld.classList.add('done'); document.documentElement.classList.remove('lock'); }
+  var dur=2000+Math.random()*2000,t0=null;
+  function tick(now){
+    if(t0===null)t0=now;
+    var u=Math.min(1,(now-t0)/dur),n=Math.round(u*100);
+    cnt.textContent=n; bar.style.width=n+'%';
+    if(u<1) requestAnimationFrame(tick); else setTimeout(finish,400);
+  }
+  requestAnimationFrame(tick);
+  var seen=0; setInterval(function(){ if(document.visibilityState==='visible'&&++seen>8) finish(); },1000);
+})();
+</script>
 </body>
 </html>
